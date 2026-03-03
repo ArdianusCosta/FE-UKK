@@ -170,6 +170,44 @@ export const apiService = {
     },
 
     // Pengembalian
+    // User Management
+    user: {
+        getAll: async () => {
+            const response = await api.get("/users-profile");
+            return response.data;
+        },
+        create: async (data: any) => {
+            const fd = new FormData();
+            fd.append("name", data.name);
+            fd.append("email", data.email);
+            fd.append("password", data.password);
+            fd.append("role", data.role);
+            if (data.status) fd.append("status", data.status);
+            if (data.foto instanceof File) {
+                fd.append("foto", data.foto);
+            }
+            const response = await api.post("/users-profile", fd);
+            return response.data;
+        },
+        update: async (id: number, data: any) => {
+            const fd = new FormData();
+            fd.append("_method", "PATCH");
+            if (data.name) fd.append("name", data.name);
+            if (data.email) fd.append("email", data.email);
+            if (data.password) fd.append("password", data.password);
+            if (data.role) fd.append("role", data.role);
+            if (data.status) fd.append("status", data.status);
+            if (data.foto instanceof File) {
+                fd.append("foto", data.foto);
+            }
+            const response = await api.post(`/users-profile/${id}`, fd);
+            return response.data;
+        },
+        delete: async (id: number) => {
+            const response = await api.delete(`/users-profile/${id}`);
+            return response.data;
+        }
+    },
     pengembalian: {
         getAll: async () => {
             const response = await api.get("/pengembalians");
@@ -219,6 +257,42 @@ export const apiService = {
     dashboard: {
         getStats: async () => {
             const response = await api.get("/dashboard/stats");
+            return response.data;
+        }
+    },
+    role: {
+        getAll: async () => {
+            const response = await api.get("/roles");
+            return response.data;
+        },
+        create: async (data: any) => {
+            const response = await api.post("/roles", data);
+            return response.data;
+        },
+        update: async (id: number, data: any) => {
+            const response = await api.patch(`/roles/${id}`, data);
+            return response.data;
+        },
+        delete: async (id: number) => {
+            const response = await api.delete(`/roles/${id}`);
+            return response.data;
+        }
+    },
+    permission: {
+        getAll: async () => {
+            const response = await api.get("/permissions");
+            return response.data;
+        },
+        create: async (data: any) => {
+            const response = await api.post("/permissions", data);
+            return response.data;
+        },
+        update: async (id: number, data: any) => {
+            const response = await api.patch(`/permissions/${id}`, data);
+            return response.data;
+        },
+        delete: async (id: number) => {
+            const response = await api.delete(`/permissions/${id}`);
             return response.data;
         }
     }

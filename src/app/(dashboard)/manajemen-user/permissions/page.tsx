@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { apiService } from "../../../../../services/api.service"
 import { DataTable } from "@/components/data-table"
 import { Badge } from "@/components/ui/badge"
 import { FormModal } from "@/components/form-modal"
@@ -9,21 +11,59 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
-const INITIAL_PERMISSIONS = [
-    { id: 1, name: "view_dashboard", module: "Dashboard", description: "Melihat grafik dan statistik dashboard." },
-    { id: 2, name: "manage_users", module: "User Management", description: "Tambah, edit, dan hapus user." },
-    { id: 3, name: "manage_roles", module: "User Management", description: "Mengatur role dan permission." },
-    { id: 4, name: "manage_equipment", module: "Master Data", description: "Mengelola data alat sekolah." },
-    { id: 5, name: "create_transaction", module: "Transaksi", description: "Membuat data peminjaman baru." },
-]
-
 export default function PermissionsPage() {
-    const [permissions, setPermissions] = React.useState(INITIAL_PERMISSIONS)
+    const queryClient = useQueryClient()
     const [isAddModalOpen, setIsAddModalOpen] = React.useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = React.useState(false)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false)
     const [currentPermission, setCurrentPermission] = React.useState<any>(null)
-    const [formData, setFormData] = React.useState({ name: "", module: "", description: "" })
+    const [formData, setFormData] = React.useState({ name: "", description: "" })
+
+    const { data: permissionsData, isLoading } = useQuery({
+        queryKey: ["permissions"],
+        queryFn: () => apiService.permission.getAll()
+    })
+
+    const permissions = permissionsData?.data || []
+
+    const addMutation = useMutation({
+        mutationFn: (data: any) => apiService.permission.create(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["permissions"] })
+            setIsAddModalOpen(false)
+            setFormData({ name: "", description: "" })
+            toast.success("Permission berhasil ditambahkan")
+        },
+        onError: (err: any) => {
+            toast.error(err.response?.data?.message || "Gagal menambahkan permission")
+        }
+    })
+
+    const editMutation = useMutation({
+        mutationFn: ({ id, data }: { id: number, data: any }) => apiService.permission.update(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["permissions"] })
+            setIsEditModalOpen(false)
+            setCurrentPermission(null)
+            toast.success("Permission berhasil diperbarui")
+        },
+        onError: (err: any) => {
+            toast.error(err.response?.data?.message || "Gagal memperbarui permission")
+        }
+    })
+
+    const deleteMutation = useMutation({
+        mutationFn: (id: number) => apiService.permission.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["permissions"] })
+            setIsDeleteModalOpen(false)
+            setCurrentPermission(null)
+            toast.success("Permission berhasil dihapus")
+        },
+        onError: (err: any) => {
+            toast.error(err.response?.data?.message || "Gagal menghapus permission")
+        }
+    })
 
     const columns = [
         {
@@ -47,52 +87,23 @@ export default function PermissionsPage() {
         { header: "Deskripsi", accessorKey: "description" as const },
     ]
 
-    const handleAdd = () => {
-        const newPermission = {
-            id: permissions.length + 1,
-            ...formData
-        }
-        setPermissions([...permissions, newPermission])
-        setIsAddModalOpen(false)
-        setFormData({ name: "", module: "", description: "" })
-        toast.success("Permission berhasil ditambahkan")
-    }
-
-    const handleEdit = () => {
-        setPermissions(permissions.map(p => p.id === currentPermission.id ? { ...currentPermission, ...formData } : p))
-        setIsEditModalOpen(false)
-        setCurrentPermission(null)
-        setFormData({ name: "", module: "", description: "" })
-        toast.success("Permission berhasil diperbarui")
-    }
-
-    const handleDelete = () => {
-        setPermissions(permissions.filter(p => p.id !== currentPermission.id))
-        setIsDeleteModalOpen(false)
-        setCurrentPermission(null)
-        toast.success("Permission berhasil dihapus")
-    }
-
-    const openEditModal = (permission: any) => {
-        setCurrentPermission(permission)
-        setFormData({ name: permission.name, module: permission.module, description: permission.description })
-        setIsEditModalOpen(true)
-    }
-
-    const openDeleteModal = (permission: any) => {
-        setCurrentPermission(permission)
-        setIsDeleteModalOpen(true)
-    }
-
     return (
         <div className="space-y-6">
             <DataTable
                 title="Daftar Permission"
                 data={permissions}
+                loading={isLoading}
                 columns={columns}
                 onAdd={() => setIsAddModalOpen(true)}
-                onEdit={openEditModal}
-                onDelete={openDeleteModal}
+                onEdit={(perm: any) => {
+                    setCurrentPermission(perm)
+                    setFormData({ name: perm.name, description: perm.description || "" })
+                    setIsEditModalOpen(true)
+                }}
+                onDelete={(perm: any) => {
+                    setCurrentPermission(perm)
+                    setIsDeleteModalOpen(true)
+                }}
                 searchPlaceholder="Cari permission..."
             />
 
@@ -101,31 +112,26 @@ export default function PermissionsPage() {
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
                 title="Tambah Permission"
-                onSave={handleAdd}
+                onSave={() => addMutation.mutate(formData)}
+                loading={addMutation.isPending}
+                maxWidth="sm:max-w-[700px]"
             >
                 <div className="space-y-4">
                     <div className="space-y-2">
                         <Label>Nama Permission</Label>
                         <Input
-                            placeholder="e.g. manage_equipment"
+                            placeholder="e.g. equipment.view"
                             value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            onChange={(e: any) => setFormData({ ...formData, name: e.target.value })}
                         />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Modul</Label>
-                        <Input
-                            placeholder="e.g. Master Data"
-                            value={formData.module}
-                            onChange={(e) => setFormData({ ...formData, module: e.target.value })}
-                        />
+                        <p className="text-[10px] text-muted-foreground">Gunakan format dot (misal: user.view) untuk auto-modul</p>
                     </div>
                     <div className="space-y-2">
                         <Label>Deskripsi</Label>
                         <Input
                             placeholder="Deskripsi singkat..."
                             value={formData.description}
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            onChange={(e: any) => setFormData({ ...formData, description: e.target.value })}
                         />
                     </div>
                 </div>
@@ -136,28 +142,23 @@ export default function PermissionsPage() {
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
                 title="Edit Permission"
-                onSave={handleEdit}
+                onSave={() => editMutation.mutate({ id: currentPermission.id, data: formData })}
+                loading={editMutation.isPending}
+                maxWidth="sm:max-w-[700px]"
             >
                 <div className="space-y-4">
                     <div className="space-y-2">
                         <Label>Nama Permission</Label>
                         <Input
                             value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Modul</Label>
-                        <Input
-                            value={formData.module}
-                            onChange={(e) => setFormData({ ...formData, module: e.target.value })}
+                            onChange={(e: any) => setFormData({ ...formData, name: e.target.value })}
                         />
                     </div>
                     <div className="space-y-2">
                         <Label>Deskripsi</Label>
                         <Input
                             value={formData.description}
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            onChange={(e: any) => setFormData({ ...formData, description: e.target.value })}
                         />
                     </div>
                 </div>
@@ -167,7 +168,8 @@ export default function PermissionsPage() {
             <ConfirmDialog
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
-                onConfirm={handleDelete}
+                onConfirm={() => deleteMutation.mutate(currentPermission.id)}
+                loading={deleteMutation.isPending}
                 title="Hapus Permission"
                 description={`Apakah Anda yakin ingin menghapus permission "${currentPermission?.name}"? Tindakan ini tidak dapat dibatalkan.`}
             />

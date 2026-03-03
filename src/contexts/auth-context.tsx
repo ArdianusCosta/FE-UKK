@@ -75,22 +75,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                             'alat.view', 'alat.create', 'alat.update', 'alat.delete',
                             'peminjaman.view', 'peminjaman.create', 'peminjaman.update', 'peminjaman.delete',
                             'pengembalian.view', 'pengembalian.create', 'pengembalian.update', 'pengembalian.delete',
-                            'user.view', 'user.create', 'user.update', 'user.delete',
+                            'users.view', 'users.create', 'users.update', 'users.delete',
                             'role.view', 'role.create', 'role.update', 'role.delete',
                             'permission.view', 'permission.create', 'permission.update', 'permission.delete',
                             'laporan.peminjaman', 'laporan.pengembalian',
-                            'log.view', 'pengaturan.view'
+                            'log.view', 'pengaturan.update'
                         ],
                         'Admin': [
                             'kategori.view', 'kategori.create', 'kategori.update', 'kategori.delete',
                             'alat.view', 'alat.create', 'alat.update', 'alat.delete',
                             'peminjaman.view', 'peminjaman.create', 'peminjaman.update', 'peminjaman.delete',
                             'pengembalian.view', 'pengembalian.create', 'pengembalian.update', 'pengembalian.delete',
-                            'user.view', 'user.create', 'user.update', 'user.delete',
+                            'users.view', 'users.create', 'users.update', 'users.delete',
                             'role.view', 'role.create', 'role.update', 'role.delete',
                             'permission.view', 'permission.create', 'permission.update', 'permission.delete',
                             'laporan.peminjaman', 'laporan.pengembalian',
-                            'log.view', 'pengaturan.view'
+                            'log.view', 'pengaturan.update'
                         ],
                         'Petugas': [
                             'peminjaman.view', 'peminjaman.approve',
@@ -107,11 +107,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                             'alat.view', 'alat.create', 'alat.update', 'alat.delete',
                             'peminjaman.view', 'peminjaman.create', 'peminjaman.update', 'peminjaman.delete',
                             'pengembalian.view', 'pengembalian.create', 'pengembalian.update', 'pengembalian.delete',
-                            'user.view', 'user.create', 'user.update', 'user.delete',
+                            'users.view', 'users.create', 'users.update', 'users.delete',
                             'role.view', 'role.create', 'role.update', 'role.delete',
                             'permission.view', 'permission.create', 'permission.update', 'permission.delete',
                             'laporan.peminjaman', 'laporan.pengembalian',
-                            'log.view', 'pengaturan.view'
+                            'log.view', 'pengaturan.update'
                         ]
                     }
 
@@ -138,11 +138,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         'alat.view', 'alat.create', 'alat.update', 'alat.delete',
                         'peminjaman.view', 'peminjaman.create', 'peminjaman.update', 'peminjaman.delete',
                         'pengembalian.view', 'pengembalian.create', 'pengembalian.update', 'pengembalian.delete',
-                        'user.view', 'user.create', 'user.update', 'user.delete',
+                        'users.view', 'users.create', 'users.update', 'users.delete',
                         'role.view', 'role.create', 'role.update', 'role.delete',
                         'permission.view', 'permission.create', 'permission.update', 'permission.delete',
                         'laporan.peminjaman', 'laporan.pengembalian',
-                        'log.view', 'pengaturan.view'
+                        'log.view', 'pengaturan.update'
                     ]
                 }
 

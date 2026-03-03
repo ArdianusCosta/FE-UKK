@@ -55,13 +55,13 @@ export const navItems: NavItem[] = [
     {
         title: "Manajemen User",
         icon: Users,
-        permission: ["user.view", "role.view", "permission.view"],
+        permission: ["users.view", "role.view", "permission.view"],
         children: [
             {
                 title: "Users",
                 href: "/manajemen-user/users",
                 icon: UserCircle,
-                permission: "user.view",
+                permission: "users.view",
             },
             {
                 title: "Roles",

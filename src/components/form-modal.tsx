@@ -13,13 +13,23 @@ interface FormModalProps {
     onSave: () => void
     saveLabel?: string
     loading?: boolean
+    maxWidth?: string
 }
 
-export function FormModal({isOpen,onClose,title,description,children,onSave,saveLabel = "Simpan",loading = false,
+export function FormModal({
+    isOpen,
+    onClose,
+    title,
+    description,
+    children,
+    onSave,
+    saveLabel = "Simpan",
+    loading = false,
+    maxWidth = "sm:max-w-[500px]"
 }: FormModalProps) {
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-[500px] glass border-border/50">
+            <DialogContent className={`${maxWidth} glass border-border/50`}>
                 <DialogHeader>
                     <DialogTitle className="text-xl font-bold dark:text-white">{title}</DialogTitle>
                     {description && (

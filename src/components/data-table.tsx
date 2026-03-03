@@ -48,7 +48,7 @@ export function DataTable<T>({title,data,columns,onAdd,onEdit,onDelete,searchPla
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-2xl font-bold tracking-tight dark:text-white">{title}</h2>
-                        <p className="text-sm text-muted-foreground">Kelola {title.toLowerCase()} sistem Anda.</p>
+                        <p className="text-sm text-muted-foreground">Kelola {title.toLowerCase()}.</p>
                     </div>
                     {onAdd && (
                         <Button onClick={onAdd} className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 w-full sm:w-auto">
