@@ -22,7 +22,6 @@ export default function LoginPage() {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
-
         try {
             const data = await apiService.auth.login({ email, password })
             localStorage.setItem("token", data.token)

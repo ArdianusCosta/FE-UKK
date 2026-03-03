@@ -16,7 +16,7 @@ import { apiService } from "../../../../../services/api.service"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 
-const BACKEND_URL = "http://127.0.0.1:8000"
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000"
 
 const STATUS_OPTIONS = [
     { value: "tersedia", label: "Tersedia", color: "bg-green-500" },
@@ -31,8 +31,6 @@ export default function AlatPage() {
     const [isOpenEdit, setIsOpenEdit] = React.useState(false)
     const [isOpenDelete, setIsOpenDelete] = React.useState(false)
     const [selectedAlat, setSelectedAlat] = React.useState<any>(null)
-
-    // Form states
     const [kodeAlat, setKodeAlat] = React.useState("")
     const [namaAlat, setNamaAlat] = React.useState("")
     const [kategoriId, setKategoriId] = React.useState("")
@@ -237,7 +235,6 @@ export default function AlatPage() {
                     loading={addMutation.isPending}
                 >
                     <div className="space-y-4">
-                        {/* Foto upload area */}
                         <FotoUploadField id="add-foto" hint="opsional" />
 
                         <div className="grid grid-cols-2 gap-4">

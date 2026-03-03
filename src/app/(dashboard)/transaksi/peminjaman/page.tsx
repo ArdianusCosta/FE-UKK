@@ -19,6 +19,9 @@ import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
 import { Switch } from "@/components/ui/switch"
+import { Peminjaman } from "@/types/peminjam.types"
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL
 
 const STATUS_VARIANTS: Record<string, string> = {
     'Pending': 'bg-yellow-500',
@@ -26,18 +29,6 @@ const STATUS_VARIANTS: Record<string, string> = {
     'Ditolak': 'bg-slate-500',
     'Terlambat': 'bg-red-500',
     'Dikembalikan': 'bg-green-500'
-}
-
-interface Peminjaman {
-    id: number;
-    kode: string;
-    peminjam_id: number;
-    alat_id: number;
-    tanggal_pinjam: string;
-    tanggal_kembali: string | null;
-    status: string;
-    peminjam: { id: number; name: string };
-    alat: { id: number; nama: string; foto: string | null };
 }
 
 export default function PeminjamanPage() {
@@ -55,8 +46,6 @@ export default function PeminjamanPage() {
         tanggal_kembali: "",
         status: "Pending"
     })
-
-    // Fetch Data
     const { data: peminjamanResponse, isLoading } = useQuery({
         queryKey: ["peminjaman"],
         queryFn: apiService.peminjaman.getAll
@@ -75,7 +64,6 @@ export default function PeminjamanPage() {
     const alats = alatResponse?.data || []
     const peminjamans: Peminjaman[] = peminjamanResponse?.data || []
 
-    // Mutations
     const createMutation = useMutation({
         mutationFn: apiService.peminjaman.create,
         onSuccess: () => {
@@ -150,7 +138,7 @@ export default function PeminjamanPage() {
                 <div className="h-10 w-10 rounded-lg overflow-hidden glass border border-white/10">
                     {row.alat?.foto ? (
                         <img
-                            src={`http://localhost:8000/uploads/alat/${row.alat.foto}`}
+                            src={`${BACKEND_URL}/uploads/alat/${row.alat.foto}`}
                             alt={row.alat.nama}
                             className="h-full w-full object-cover"
                         />
@@ -262,7 +250,6 @@ export default function PeminjamanPage() {
                 )}
             />
 
-            {/* Form Add */}
             <FormModal
                 isOpen={isOpenAdd}
                 onClose={() => setIsOpenAdd(false)}
@@ -374,8 +361,6 @@ export default function PeminjamanPage() {
                     )}
                 </div>
             </FormModal>
-
-            {/* Form Edit */}
             <FormModal
                 isOpen={isOpenEdit}
                 onClose={() => setIsOpenEdit(false)}
@@ -449,8 +434,6 @@ export default function PeminjamanPage() {
                     )}
                 </div>
             </FormModal>
-
-            {/* Receipt Modal */}
             <FormModal
                 isOpen={isOpenReceipt}
                 onClose={() => setIsOpenReceipt(false)}
@@ -473,7 +456,7 @@ export default function PeminjamanPage() {
                         <div className="h-16 w-16 rounded-md overflow-hidden bg-muted">
                             {selectedTrx?.alat?.foto ? (
                                 <img
-                                    src={`http://localhost:8000/uploads/alat/${selectedTrx.alat.foto}`}
+                                    src={`${BACKEND_URL}/uploads/alat/${selectedTrx.alat.foto}`}
                                     alt={selectedTrx.alat.nama}
                                     className="h-full w-full object-cover"
                                 />

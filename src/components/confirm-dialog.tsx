@@ -1,14 +1,7 @@
 "use client"
 
 import * as React from "react"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
+import {Dialog,DialogContent,DialogDescription,DialogFooter,DialogHeader,DialogTitle,} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { AlertTriangle } from "lucide-react"
 
@@ -23,15 +16,7 @@ interface ConfirmDialogProps {
     loading?: boolean
 }
 
-export function ConfirmDialog({
-    isOpen,
-    onClose,
-    onConfirm,
-    title,
-    description,
-    confirmLabel = "Hapus",
-    variant = "destructive",
-    loading = false,
+export function ConfirmDialog({isOpen,onClose,onConfirm,title,description,confirmLabel = "Hapus",variant = "destructive",loading = false,
 }: ConfirmDialogProps) {
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

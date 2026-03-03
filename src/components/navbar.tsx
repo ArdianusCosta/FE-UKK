@@ -6,19 +6,20 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MobileSidebar } from "@/components/sidebar"
 import { ChatSheet } from "@/components/chat-sheet"
+import { useAuth } from "@/contexts/auth-context"
+
 
 export function Navbar() {
+    const { user } = useAuth()
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000"
+    const initials = user?.name
+        ? user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+        : "U"
+
     return (
         <header className="h-16 sticky top-0 z-40 glass border-b transition-all duration-300">
             <div className="h-full px-4 md:px-6 flex items-center justify-between gap-4">
@@ -58,19 +59,24 @@ export function Navbar() {
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="relative h-9 w-9 rounded-full glass border border-sidebar-border">
                                 <Avatar className="h-8 w-8">
-                                    <AvatarImage src="" alt="@admin" />
-                                    <AvatarFallback className="bg-primary/10 text-primary font-bold">AD</AvatarFallback>
+                                    <AvatarImage src={user?.foto ? `${BACKEND_URL}/storage/${user.foto}` : ""} alt={`@${user?.name}`} />
+                                    <AvatarFallback className="bg-primary/10 text-primary font-bold">
+
+                                        {initials}
+                                    </AvatarFallback>
                                 </Avatar>
+
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-56 glass" align="end" forceMount>
                             <DropdownMenuLabel className="font-normal">
                                 <div className="flex flex-col space-y-1">
-                                    <p className="text-sm font-medium leading-none">Admin User</p>
+                                    <p className="text-sm font-medium leading-none">{user?.name || "User"}</p>
                                     <p className="text-xs leading-none text-muted-foreground">
-                                        admin@alatkita.com
+                                        {user?.email || "user@example.com"}
                                     </p>
                                 </div>
+
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-sidebar-border" />
                             <DropdownMenuItem asChild>

@@ -8,20 +8,14 @@ import { toast } from "sonner"
 interface PermissionGuardProps {
     children: React.ReactNode
     permission?: string | string[]
-    requireAll?: boolean // If true, requires all permissions; if false, requires any permission
+    requireAll?: boolean
     fallback?: React.ReactNode
 }
 
-export function PermissionGuard({ 
-    children, 
-    permission, 
-    requireAll = false,
-    fallback 
+export function PermissionGuard({ children, permission, requireAll = false,fallback 
 }: PermissionGuardProps) {
     const { user, isLoading, hasPermission, hasAnyPermission, hasAllPermissions } = useAuth()
     const router = useRouter()
-
-    // Show loading state while checking auth
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -30,18 +24,15 @@ export function PermissionGuard({
         )
     }
 
-    // Redirect to login if not authenticated
     if (!user) {
         router.push("/login")
         return null
     }
 
-    // If no permission required, allow access
     if (!permission) {
         return <>{children}</>
     }
 
-    // Check permissions
     let hasAccess = false
     if (Array.isArray(permission)) {
         hasAccess = requireAll ? hasAllPermissions(permission) : hasAnyPermission(permission)
@@ -50,12 +41,10 @@ export function PermissionGuard({
     }
 
     if (!hasAccess) {
-        // Show fallback or redirect with message
         if (fallback) {
             return <>{fallback}</>
         }
         
-        // Show unauthorized message and redirect
         React.useEffect(() => {
             toast.error("Anda tidak memiliki izin untuk mengakses halaman ini")
             router.push("/dashboard")
@@ -73,8 +62,6 @@ export function PermissionGuard({
 
     return <>{children}</>
 }
-
-// Higher-order component for pages
 export function withPermission<P extends object>(
     Component: React.ComponentType<P>,
     permission?: string | string[],

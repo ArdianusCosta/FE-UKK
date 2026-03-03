@@ -17,15 +17,12 @@ import { toast } from "sonner"
 export default function ProfilePage() {
     const { user, refreshUser } = useAuth()
     const [isLoading, setIsLoading] = React.useState(false)
-    const [formData, setFormData] = React.useState({
-        name: "",
-        email: "",
-        no_hp: "",
-        bio_singkat_ajasih: "",
-    })
+    const [formData, setFormData] = React.useState({ name: "", email: "", no_hp: "", bio_singkat_ajasih: "", })
     const [foto, setFoto] = React.useState<File | null>(null)
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
     const fileInputRef = React.useRef<HTMLInputElement>(null)
+
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000"
 
     React.useEffect(() => {
         if (user) {
@@ -36,7 +33,7 @@ export default function ProfilePage() {
                 bio_singkat_ajasih: user.bio_singkat_ajasih || "",
             })
             if (user.foto) {
-                setPreviewUrl(`http://localhost:8000/storage/${user.foto}`)
+                setPreviewUrl(`${BACKEND_URL}/storage/${user.foto}`)
             }
         }
     }, [user])
@@ -77,12 +74,10 @@ export default function ProfilePage() {
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Header / Banner Section */}
             <div className="relative rounded-3xl overflow-hidden glass border-white/10 h-64 shadow-2xl group">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600/40 via-purple-600/40 to-blue-600/40 animate-pulse duration-[10s] blur-2xl opacity-50" />
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2000')] bg-cover bg-center mix-blend-overlay opacity-30 group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0b0f19] via-transparent to-transparent" />
-
                 <div className="absolute bottom-6 left-8 flex items-end gap-6">
                     <div className="relative group/avatar">
                         <div className="h-32 w-32 rounded-3xl border-4 border-[#0b0f19] shadow-2xl overflow-hidden bg-primary/20 backdrop-blur-xl flex items-center justify-center transition-transform duration-300 group-hover/avatar:scale-105">
@@ -131,7 +126,6 @@ export default function ProfilePage() {
             </div>
 
             <div className="grid gap-8 lg:grid-cols-3">
-                {/* Statistics / Quick Info */}
                 <div className="space-y-6">
                     <Card className="glass border-white/10 shadow-xl overflow-hidden">
                         <CardHeader className="pb-2">
@@ -187,7 +181,6 @@ export default function ProfilePage() {
                     </Card>
                 </div>
 
-                {/* Edit Profile Form */}
                 <Card className="lg:col-span-2 glass border-white/10 shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
                         <div className="space-y-1">

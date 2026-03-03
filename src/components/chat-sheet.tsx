@@ -2,13 +2,7 @@
 
 import * as React from "react"
 import { Send, ChevronLeft, Search, Image as ImageIcon, Smile, Trash2, X } from "lucide-react"
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
+import {Sheet,SheetContent,SheetHeader,SheetTitle,SheetTrigger,} from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -18,27 +12,8 @@ import { cn } from "@/lib/utils"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { apiService } from "../../services/api.service"
 import echo from "@/lib/echo"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-
-interface User {
-  id: number
-  name: string
-  role?: string
-  unread_count?: number
-}
-
-interface Message {
-  id: number
-  sender_id: number
-  receiver_id: number
-  message: string | null
-  image?: string | null
-  created_at: string
-}
+import {Popover,PopoverContent,PopoverTrigger,} from "@/components/ui/popover"
+import { User, Message } from "@/types/chat.types"
 
 const COMMON_EMOJIS = ["😊", "😂", "🥰", "👍", "🙌", "🔥", "✨", "🙏", "❤️", "😮"]
 
@@ -54,6 +29,8 @@ export function ChatSheet({ children }: { children: React.ReactNode }) {
   const scrollRef = React.useRef<HTMLDivElement>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL
+
   const [userId, setUserId] = React.useState<number | null>(() => {
     if (typeof window !== "undefined") {
       const id = localStorage.getItem("user_id")
@@ -61,8 +38,6 @@ export function ChatSheet({ children }: { children: React.ReactNode }) {
     }
     return null
   })
-
-  // Fetch current user
   useQuery({
     queryKey: ["auth-user"],
     queryFn: async () => {
@@ -76,13 +51,10 @@ export function ChatSheet({ children }: { children: React.ReactNode }) {
     enabled: !userId,
   })
 
-  // Fetch Users
   const { data: contacts = [] } = useQuery<User[]>({
     queryKey: ["users-chat"],
     queryFn: () => apiService.chat.getChat(),
   })
-
-  // Fetch Messages
   const { data: messages = [] } = useQuery<Message[]>({
     queryKey: ["messages", selectedContact?.id],
     queryFn: async () => {
@@ -91,8 +63,6 @@ export function ChatSheet({ children }: { children: React.ReactNode }) {
     },
     enabled: !!selectedContact,
   })
-
-  // Send Message Mutation
   const sendMessageMutation = useMutation({
     mutationFn: (data: { receiver_id: number; message?: string; image?: File }) =>
       apiService.chat.kirimChat(data),
@@ -107,8 +77,6 @@ export function ChatSheet({ children }: { children: React.ReactNode }) {
       queryClient.invalidateQueries({ queryKey: ["users-chat"] })
     },
   })
-
-  // Delete Message Mutation
   const deleteMessageMutation = useMutation({
     mutationFn: (id: number) => apiService.chat.deleteMessage(id),
     onSuccess: (_, id) => {
@@ -214,7 +182,6 @@ export function ChatSheet({ children }: { children: React.ReactNode }) {
             <SheetTitle>{selectedContact ? selectedContact.name : "Chat"}</SheetTitle>
           </div>
         </SheetHeader>
-
         {!selectedContact ? (
           <div className="flex flex-col h-full">
             <div className="p-4">
@@ -284,10 +251,10 @@ export function ChatSheet({ children }: { children: React.ReactNode }) {
                           )}>
                             {msg.image && (
                               <img
-                                src={`http://localhost:8000/storage/${msg.image}`}
+                                src={`${BACKEND_URL}/storage/${msg.image}`}
                                 alt="Sent image"
                                 className="max-w-full rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-opacity"
-                                onClick={() => window.open(`http://localhost:8000/storage/${msg.image}`, '_blank')}
+                                onClick={() => window.open(`${BACKEND_URL}/storage/${msg.image}`, '_blank')}
                               />
                             )}
                             {msg.message}

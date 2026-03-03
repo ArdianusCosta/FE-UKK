@@ -1,30 +1,12 @@
 "use client"
 
 import * as React from "react"
-import {
-    Box,
-    ClipboardList,
-    Archive,
-    RotateCcw,
-    ArrowUpRight,
-    ArrowDownRight
-} from "lucide-react"
+import { Box, ClipboardList, Archive, RotateCcw, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { StatCard } from "@/components/stat-card"
 import { useQuery } from "@tanstack/react-query"
 import { apiService } from "../../../../services/api.service"
 import { Skeleton } from "@/components/ui/skeleton"
-import {
-    LineChart,
-    Line,
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    Cell
-} from "recharts"
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 
 class ChartErrorBoundary extends React.Component<
@@ -96,13 +78,7 @@ export default function DashboardPage() {
             { name: "Belum Ada Data", total: 0 }
         ]
 
-    const {
-        total_alat,
-        alat_dipinjam,
-        alat_tersedia,
-        alat_maintenance,
-        total_peminjaman
-    } = stats.summary
+    const { total_alat, alat_dipinjam, alat_tersedia, alat_maintenance, total_peminjaman    } = stats.summary
 
     const divisor = (alat_dipinjam || 0) + (alat_maintenance || 0)
     const rawTrend = divisor > 0 ? ((alat_tersedia || 0) / divisor) * 100 : 100

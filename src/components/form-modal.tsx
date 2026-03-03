@@ -15,15 +15,7 @@ interface FormModalProps {
     loading?: boolean
 }
 
-export function FormModal({
-    isOpen,
-    onClose,
-    title,
-    description,
-    children,
-    onSave,
-    saveLabel = "Simpan",
-    loading = false,
+export function FormModal({isOpen,onClose,title,description,children,onSave,saveLabel = "Simpan",loading = false,
 }: FormModalProps) {
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

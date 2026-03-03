@@ -1,13 +1,7 @@
 "use client"
 
 import * as React from "react"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Camera, RefreshCw, Loader2, ScanLine, Upload } from "lucide-react"
 import { Html5Qrcode } from "html5-qrcode"
@@ -33,7 +27,6 @@ export function QRScanner({ isOpen, onScan, onClose }: QRScannerProps) {
             transitionRef.current = true
             try {
                 await scannerRef.current.stop()
-                // Clear the container to avoid "already has scanner" errors
                 const container = document.getElementById(scannerId)
                 if (container) container.innerHTML = ""
             } catch (err) {
@@ -52,8 +45,6 @@ export function QRScanner({ isOpen, onScan, onClose }: QRScannerProps) {
         try {
             setIsInitializing(true)
             transitionRef.current = true
-
-            // Ensure any previous instance is cleaned up
             if (scannerRef.current) {
                 if (scannerRef.current.isScanning) {
                     await scannerRef.current.stop()
@@ -79,10 +70,8 @@ export function QRScanner({ isOpen, onScan, onClose }: QRScannerProps) {
                     stopCamera()
                 },
                 (errorMessage) => {
-                    // Suppress "not found" noise
                     if (!errorMessage.includes("NotFoundException") &&
                         !errorMessage.includes("No MultiFormat Readers")) {
-                        // console.debug("Scanner status:", errorMessage)
                     }
                 }
             )
@@ -91,7 +80,6 @@ export function QRScanner({ isOpen, onScan, onClose }: QRScannerProps) {
             setIsScanning(true)
         } catch (err) {
             console.error("Scanner Start Error:", err)
-            // Only show toast if it's a real failure, not a mounting race condition
             if (isOpen) {
                 toast.error("Gagal mengakses kamera. Mohon pastikan izin kamera aktif.")
             }
@@ -137,7 +125,6 @@ export function QRScanner({ isOpen, onScan, onClose }: QRScannerProps) {
                         } else {
                             toast.error("Tidak ditemukan QR Code yang valid di gambar ini.")
                         }
-                        // Resume camera after a bit
                         setTimeout(startCamera, 1000)
                     })
                     .finally(() => setIsInitializing(false))
@@ -161,7 +148,6 @@ export function QRScanner({ isOpen, onScan, onClose }: QRScannerProps) {
 
                 <div className="p-6 space-y-6">
                     <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-white/10 bg-black/40 shadow-inner group">
-                        {/* Loading State Overlay */}
                         {isInitializing && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4 bg-slate-900/50 backdrop-blur-sm z-50">
                                 <Loader2 className="h-8 w-8 text-primary animate-spin" />
@@ -170,38 +156,27 @@ export function QRScanner({ isOpen, onScan, onClose }: QRScannerProps) {
                                 </span>
                             </div>
                         )}
-
-                        {/* QR Code Reader Target */}
                         <div
                             id={scannerId}
                             className="absolute inset-0 z-0 [&>video]:object-cover [&>video]:w-full [&>video]:h-full"
                         ></div>
-
-                        {/* Fallback View */}
                         {!isScanning && !isInitializing && (
                             <div className="absolute inset-0 bg-slate-900 flex items-center justify-center -z-10">
                                 <Camera className="w-16 h-16 text-white/5" />
                             </div>
                         )}
-
-                        {/* Scanner Decoration Overlay */}
                         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
                             <div className="relative w-64 h-64 sm:w-72 sm:h-72 border-2 border-white/5 rounded-3xl backdrop-blur-[0.5px]">
-                                {/* Corners */}
                                 <div className="absolute -top-1 -left-1 w-12 h-12 border-t-4 border-l-4 border-primary rounded-tl-2xl shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
                                 <div className="absolute -top-1 -right-1 w-12 h-12 border-t-4 border-r-4 border-primary rounded-tr-2xl shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
                                 <div className="absolute -bottom-1 -left-1 w-12 h-12 border-b-4 border-l-4 border-primary rounded-bl-2xl shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
                                 <div className="absolute -bottom-1 -right-1 w-12 h-12 border-b-4 border-r-4 border-primary rounded-br-2xl shadow-[0_0_15px_rgba(59,130,246,0.3)]" />
-
-                                {/* Scan Line */}
                                 {isScanning && (
                                     <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_20px_rgba(59,130,246,0.8)] animate-scan" />
                                 )}
                             </div>
                         </div>
-
-                        {/* Active Badge */}
-                        {isScanning && (
+                        {/* {isScanning && (
                             <div className="absolute top-4 left-4 z-20">
                                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 border border-white/10 backdrop-blur-md">
                                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
@@ -210,9 +185,8 @@ export function QRScanner({ isOpen, onScan, onClose }: QRScannerProps) {
                                     </span>
                                 </div>
                             </div>
-                        )}
+                        )} */}
                     </div>
-
                     <div className="flex flex-col gap-4">
                         <div className="grid grid-cols-2 gap-3">
                             <Button

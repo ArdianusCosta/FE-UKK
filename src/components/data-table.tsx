@@ -23,23 +23,11 @@ interface DataTableProps<T> {
     renderActions?: (item: T) => React.ReactNode
 }
 
-export function DataTable<T>({
-    title,
-    data,
-    columns,
-    onAdd,
-    onEdit,
-    onDelete,
-    searchPlaceholder = "Cari data...",
-    showHeading = true,
-    loading = false,
-    renderActions,
+export function DataTable<T>({title,data,columns,onAdd,onEdit,onDelete,searchPlaceholder = "Cari data...",showHeading = true,loading = false,renderActions,
 }: DataTableProps<T>) {
     const [searchQuery, setSearchQuery] = React.useState("")
     const [currentPage, setCurrentPage] = React.useState(1)
     const itemsPerPage = 10
-
-    // Filter data based on search
     const filteredData = React.useMemo(() => {
         if (!data) return []
         return data.filter((item: any) => {
@@ -48,13 +36,9 @@ export function DataTable<T>({
             )
         })
     }, [data, searchQuery])
-
-    // Calculate pagination
     const totalPages = Math.ceil(filteredData.length / itemsPerPage)
     const startIndex = (currentPage - 1) * itemsPerPage
     const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage)
-
-    // Reset page when search changes
     React.useEffect(() => {
         setCurrentPage(1)
     }, [searchQuery])
@@ -158,8 +142,6 @@ export function DataTable<T>({
                     </TableBody>
                 </Table>
             </div>
-
-            {/* Pagination UI */}
             <div className="flex items-center justify-between px-2 py-4">
                 <p className="text-sm text-muted-foreground">
                     Menampilkan {Math.min(startIndex + 1, filteredData.length)}-{Math.min(startIndex + itemsPerPage, filteredData.length)} dari {filteredData.length} data

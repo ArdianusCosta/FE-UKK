@@ -10,7 +10,8 @@ interface StatCardProps {
     description?: string
     isLoading?: boolean
     trend?: {
-        value: string
+        value: string | React.ReactNode
+        icon?: LucideIcon
         positive?: boolean
     }
 }
@@ -56,9 +57,10 @@ export function StatCard({ title, value, icon: Icon, description, trend, isLoadi
                     <div className="mt-4 flex items-center gap-2">
                         {trend && (
                             <span className={cn(
-                                "text-xs font-bold px-1.5 py-0.5 rounded-md",
+                                "text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1",
                                 trend.positive ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
                             )}>
+                                {trend.icon && <trend.icon className="h-3 w-3" />}
                                 {trend.value}
                             </span>
                         )}

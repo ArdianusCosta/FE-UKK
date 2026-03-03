@@ -10,11 +10,7 @@ import { useRouter } from "next/navigation"
 import { apiService } from "../../services/api.service"
 import { toast } from "sonner"
 import { useAuth } from "@/contexts/auth-context"
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+import {Collapsible,CollapsibleContent,CollapsibleTrigger,} from "@/components/ui/collapsible"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
@@ -59,7 +55,6 @@ function SidebarContent() {
             router.push("/login")
         } catch (error: any) {
             toast.error("Gagal keluar sistem")
-            // Still redirect anyway if it's an auth error
             if (error.response?.status === 401) {
                 router.push("/login")
             }
@@ -70,12 +65,10 @@ function SidebarContent() {
 
     const filterNavItems = (items: NavItem[]): NavItem[] => {
         return items.filter(item => {
-            // Specific rule: Hide Master Data for Petugas
             if (item.title === "Master Data" && user?.role?.toLowerCase() === 'petugas') {
                 return false
             }
 
-            // Check if item has permission requirement
             if (item.permission) {
                 if (Array.isArray(item.permission)) {
                     return hasAnyPermission(item.permission)
@@ -85,7 +78,6 @@ function SidebarContent() {
             }
             return true
         }).map(item => {
-            // Filter children if they exist
             if (item.children) {
                 const filteredChildren = filterNavItems(item.children)
                 return {
@@ -95,7 +87,6 @@ function SidebarContent() {
             }
             return item
         }).filter(item => {
-            // Remove parent items if all children are filtered out
             if (item.children && item.children.length === 0) {
                 return false
             }

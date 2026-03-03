@@ -19,10 +19,8 @@ export default function KategoriPage() {
     const [isOpenEdit, setIsOpenEdit] = React.useState(false)
     const [isOpenDelete, setIsOpenDelete] = React.useState(false)
     const [selectedKategori, setSelectedKategori] = React.useState<any>(null)
-
     const [namaKategori, setNamaKategori] = React.useState("")
     const [status, setStatus] = React.useState("active")
-
     const { data: response, isLoading } = useQuery({
         queryKey: ["kategori"],
         queryFn: apiService.kategori.getAll,

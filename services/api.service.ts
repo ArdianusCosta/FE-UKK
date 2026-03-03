@@ -143,11 +143,11 @@ export const apiService = {
             const response = await api.get("/peminjamans");
             return response.data;
         },
-        create: async (data: { alat_id: number; peminjam_id: number; tanggal_pinjam?: string; status?: string }) => {
+        create: async (data: { alat_id: number; peminjam_id: number; tanggal_pinjam?: string; tanggal_kembali?: string | null; status?: string }) => {
             const response = await api.post("/peminjamans", data);
             return response.data;
         },
-        update: async (id: number, data: { tanggal_pinjam?: string; status?: string }) => {
+        update: async (id: number, data: { tanggal_pinjam?: string; tanggal_kembali?: string | null; status?: string }) => {
             const response = await api.patch(`/peminjamans/${id}`, data);
             return response.data;
         },

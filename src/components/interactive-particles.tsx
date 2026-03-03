@@ -36,12 +36,11 @@ export const InteractiveParticles: React.FC = () => {
 
         const initParticles = () => {
             particles = []
-            // Use colors matching the theme (purples and blues)
             const colors = [
-                'rgba(139, 92, 246, 0.4)', // Violet 500
-                'rgba(59, 130, 246, 0.4)',  // Blue 500
-                'rgba(168, 85, 247, 0.4)', // Purple 500
-                'rgba(37, 99, 235, 0.4)',  // Blue 600
+                'rgba(139, 92, 246, 0.4)',
+                'rgba(59, 130, 246, 0.4)',
+                'rgba(168, 85, 247, 0.4)',
+                'rgba(37, 99, 235, 0.4)',
             ]
 
             for (let i = 0; i < particleCount; i++) {
@@ -60,11 +59,9 @@ export const InteractiveParticles: React.FC = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height)
 
             particles.forEach((p) => {
-                // Default movement
                 p.x += p.speedX
                 p.y += p.speedY
 
-                // Mouse interaction - particles are attracted slightly to mouse
                 const dx = mouseRef.current.x - p.x
                 const dy = mouseRef.current.y - p.y
                 const distance = Math.sqrt(dx * dx + dy * dy)
@@ -72,12 +69,10 @@ export const InteractiveParticles: React.FC = () => {
 
                 if (distance < forceRange) {
                     const force = (forceRange - distance) / forceRange
-                    // Move towards mouse with more strength
                     p.x += dx * force * 0.03
                     p.y += dy * force * 0.03
                 }
 
-                // Wrap around edges
                 if (p.x < 0) p.x = canvas.width
                 if (p.x > canvas.width) p.x = 0
                 if (p.y < 0) p.y = canvas.height
