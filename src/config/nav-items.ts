@@ -1,19 +1,4 @@
-import {
-    LayoutDashboard,
-    Box,
-    ClipboardList,
-    Users,
-    FileText,
-    History,
-    Settings,
-    Wrench,
-    Tags,
-    ArrowUpCircle,
-    ArrowDownCircle,
-    UserCircle,
-    ShieldCheck,
-    Key
-} from "lucide-react"
+import { LayoutDashboard, Box, ClipboardList, Users, FileText, History, Settings, Wrench, Tags, ArrowUpCircle, ArrowDownCircle, UserCircle, ShieldCheck, Key } from "lucide-react"
 
 export interface NavItem {
     title: string
@@ -94,22 +79,8 @@ export const navItems: NavItem[] = [
     },
     {
         title: "Laporan",
+        href: "/laporan",
         icon: FileText,
-        permission: ["laporan.peminjaman", "laporan.pengembalian"],
-        children: [
-            {
-                title: "Laporan Peminjaman",
-                href: "/laporan/peminjaman",
-                icon: ArrowUpCircle,
-                permission: "laporan.peminjaman",
-            },
-            {
-                title: "Laporan Pengembalian",
-                href: "/laporan/pengembalian",
-                icon: ArrowDownCircle,
-                permission: "laporan.pengembalian",
-            },
-        ],
     },
     {
         title: "Log Aktivitas",
