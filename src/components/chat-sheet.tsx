@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Send, ChevronLeft, Search, Image as ImageIcon, Smile, Trash2, X } from "lucide-react"
-import {Sheet,SheetContent,SheetHeader,SheetTitle,SheetTrigger,} from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -12,10 +12,12 @@ import { cn } from "@/lib/utils"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { apiService } from "../../services/api.service"
 import echo from "@/lib/echo"
-import {Popover,PopoverContent,PopoverTrigger,} from "@/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger, } from "@/components/ui/popover"
 import { User, Message } from "@/types/chat.types"
+import dynamic from "next/dynamic"
+import { useTheme } from "next-themes"
 
-const COMMON_EMOJIS = ["😊", "😂", "🥰", "👍", "🙌", "🔥", "✨", "🙏", "❤️", "😮"]
+const EmojiPicker = dynamic(() => import("emoji-picker-react"), { ssr: false })
 
 export function ChatSheet({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient()
@@ -30,6 +32,8 @@ export function ChatSheet({ children }: { children: React.ReactNode }) {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL
+
+  const { theme } = useTheme()
 
   const [userId, setUserId] = React.useState<number | null>(() => {
     if (typeof window !== "undefined") {
@@ -300,14 +304,22 @@ export function ChatSheet({ children }: { children: React.ReactNode }) {
                       <Smile className="h-5 w-5" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-full p-2" side="top" align="start">
-                    <div className="grid grid-cols-5 gap-1">
-                      {COMMON_EMOJIS.map(emoji => (
-                        <Button key={emoji} variant="ghost" className="h-8 w-8 p-0 text-lg" onClick={() => addEmoji(emoji)}>{emoji}</Button>
-                      ))}
-                    </div>
+                  <PopoverContent className="w-[300px] sm:w-[350px] p-0 border-none bg-transparent shadow-none max-w-[calc(100vw-80px)]" side="top" align="start" sideOffset={12}>
+                    <EmojiPicker
+                      theme={(theme === "dark" ? "dark" : "light") as any}
+                      onEmojiClick={(emojiData) => {
+                        setNewMessage(prev => prev + emojiData.emoji)
+                      }}
+                      height={400}
+                      width="100%"
+                      searchDisabled={false}
+                      previewConfig={{ showPreview: false }}
+                      skinTonesDisabled
+                      lazyLoadEmojis
+                    />
                   </PopoverContent>
                 </Popover>
+
                 <form className="flex-1 flex gap-2" onSubmit={e => { e.preventDefault(); handleSend(); }}>
                   <Input placeholder="Tulis pesan..." value={newMessage} onChange={handleTyping} />
                   <Button size="icon" disabled={sendMessageMutation.isPending}><Send className="h-4 w-4" /></Button>
