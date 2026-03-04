@@ -4,6 +4,7 @@ import * as React from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Plus, Search, Edit2, Trash2, ChevronLeft, ChevronRight } from "lucide-react"
 
 interface DataTableProps<T> {
@@ -23,7 +24,7 @@ interface DataTableProps<T> {
     renderActions?: (item: T) => React.ReactNode
 }
 
-export function DataTable<T>({title,data,columns,onAdd,onEdit,onDelete,searchPlaceholder = "Cari data...",showHeading = true,loading = false,renderActions,
+export function DataTable<T>({ title, data, columns, onAdd, onEdit, onDelete, searchPlaceholder = "Cari data...", showHeading = true, loading = false, renderActions,
 }: DataTableProps<T>) {
     const [searchQuery, setSearchQuery] = React.useState("")
     const [currentPage, setCurrentPage] = React.useState(1)
@@ -85,14 +86,23 @@ export function DataTable<T>({title,data,columns,onAdd,onEdit,onDelete,searchPla
                     </TableHeader>
                     <TableBody>
                         {loading ? (
-                            <TableRow>
-                                <TableCell colSpan={columns.length + 1} className="h-24 text-center">
-                                    <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                                        <span>Memuat data...</span>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
+                            Array.from({ length: itemsPerPage }).map((_, i) => (
+                                <TableRow key={i}>
+                                    {columns.map((_, j) => (
+                                        <TableCell key={j}>
+                                            <Skeleton className="h-6 w-full" />
+                                        </TableCell>
+                                    ))}
+                                    {(onEdit || onDelete) && (
+                                        <TableCell>
+                                            <div className="flex justify-end gap-2">
+                                                <Skeleton className="h-8 w-8 rounded-md" />
+                                                <Skeleton className="h-8 w-8 rounded-md" />
+                                            </div>
+                                        </TableCell>
+                                    )}
+                                </TableRow>
+                            ))
                         ) : paginatedData.length > 0 ? (
                             paginatedData.map((item, rowIdx) => (
                                 <TableRow key={rowIdx} className="hover:bg-primary/5 transition-colors">

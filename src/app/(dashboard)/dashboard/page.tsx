@@ -1,13 +1,15 @@
 "use client"
 
 import * as React from "react"
-import { Box, ClipboardList, Archive, RotateCcw, ArrowUpRight, ArrowDownRight } from "lucide-react"
+import { Box, ClipboardList, Archive, RotateCcw, ArrowUpRight, ArrowDownRight, AlertCircle, RefreshCcw } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { StatCard } from "@/components/stat-card"
 import { useQuery } from "@tanstack/react-query"
 import { apiService } from "../../../../services/api.service"
 import { Skeleton } from "@/components/ui/skeleton"
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { useAuth } from "@/contexts/auth-context"
 
 class ChartErrorBoundary extends React.Component<
     { children: React.ReactNode },
@@ -29,11 +31,25 @@ class ChartErrorBoundary extends React.Component<
     render() {
         if (this.state.hasError) {
             return (
-                <div className="flex items-center justify-center h-[350px] text-muted-foreground">
-                    <div className="text-center">
-                        <p>Chart tidak dapat dimuat</p>
-                        <p className="text-sm">Mohon refresh halaman</p>
+                <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center p-6 space-y-4 rounded-xl bg-destructive/5 border border-destructive/20 animate-in fade-in duration-500">
+                    <div className="p-3 rounded-full bg-destructive/10 text-destructive">
+                        <AlertCircle className="w-8 h-8" />
                     </div>
+                    <div className="space-y-1">
+                        <h3 className="font-semibold text-lg tracking-tight">Gagal Memuat Chart</h3>
+                        <p className="text-sm text-muted-foreground max-w-[250px] mx-auto">
+                            Terjadi kesalahan saat memproses data visualisasi.
+                        </p>
+                    </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.location.reload()}
+                        className="gap-2 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-all duration-300"
+                    >
+                        <RefreshCcw className="w-4 h-4" />
+                        Coba Lagi
+                    </Button>
                 </div>
             )
         }
@@ -43,10 +59,57 @@ class ChartErrorBoundary extends React.Component<
 }
 
 export default function DashboardPage() {
+    const { user, isLoading: isAuthLoading } = useAuth()
     const { data: statsResponse, isLoading } = useQuery({
         queryKey: ["dashboard-stats"],
         queryFn: apiService.dashboard.getStats,
+        enabled: !!user
     })
+
+    if (isAuthLoading) {
+        return (
+            <div className="space-y-8">
+                <div>
+                    <Skeleton className="h-9 w-64 mb-2" />
+                    <Skeleton className="h-5 w-96" />
+                </div>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    {[...Array(4)].map((_, i) => (
+                        <Card key={i} className="glass border-border/50">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <Skeleton className="h-4 w-24" />
+                                <Skeleton className="h-4 w-4 rounded-full" />
+                            </CardHeader>
+                            <CardContent>
+                                <Skeleton className="h-8 w-16 mb-2" />
+                                <Skeleton className="h-3 w-32" />
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+                    <Card className="col-span-1 lg:col-span-4 glass border-border/50 shadow-lg">
+                        <CardHeader>
+                            <Skeleton className="h-6 w-32 mb-2" />
+                            <Skeleton className="h-4 w-64" />
+                        </CardHeader>
+                        <CardContent className="h-[350px]">
+                            <Skeleton className="h-full w-full rounded-lg" />
+                        </CardContent>
+                    </Card>
+                    <Card className="col-span-1 lg:col-span-3 glass border-border/50 shadow-lg">
+                        <CardHeader>
+                            <Skeleton className="h-6 w-32 mb-2" />
+                            <Skeleton className="h-4 w-48" />
+                        </CardHeader>
+                        <CardContent className="h-[350px]">
+                            <Skeleton className="h-full w-full rounded-lg" />
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        )
+    }
 
     const stats = statsResponse?.data || {
         summary: {
@@ -78,7 +141,7 @@ export default function DashboardPage() {
             { name: "Belum Ada Data", total: 0 }
         ]
 
-    const { total_alat, alat_dipinjam, alat_tersedia, alat_maintenance, total_peminjaman    } = stats.summary
+    const { total_alat, alat_dipinjam, alat_tersedia, alat_maintenance, total_peminjaman } = stats.summary
 
     const divisor = (alat_dipinjam || 0) + (alat_maintenance || 0)
     const rawTrend = divisor > 0 ? ((alat_tersedia || 0) / divisor) * 100 : 100
@@ -90,7 +153,7 @@ export default function DashboardPage() {
         <div className="space-y-8">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight dark:text-white">Dashboard Overview</h1>
-                <p className="text-muted-foreground">Selamat datang kembali, Admin! Berikut ringkasan sistem saat ini.</p>
+                <p className="text-muted-foreground">Selamat datang kembali, {user?.name || 'User'}! Berikut ringkasan sistem saat ini.</p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -135,44 +198,48 @@ export default function DashboardPage() {
                         <CardDescription>Aktivitas peminjaman alat dalam 7 hari terakhir.</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[350px]">
-                        <ChartErrorBoundary>
-                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                                <LineChart data={borrowingData}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted/30" stroke="currentColor" />
-                                    <XAxis
-                                        dataKey="name"
-                                        stroke="#888888"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                    />
-                                    <YAxis
-                                        stroke="#888888"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickFormatter={(value) => `${value}`}
-                                    />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: "var(--popover)",
-                                            border: "1px solid var(--border)",
-                                            borderRadius: "var(--radius)",
-                                            color: "var(--popover-foreground)"
-                                        }}
-                                        itemStyle={{ color: "#3b82f6" }}
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="total"
-                                        stroke="#3b82f6"
-                                        strokeWidth={3}
-                                        dot={{ r: 4, fill: "#3b82f6", strokeWidth: 2, stroke: "#fff" }}
-                                        activeDot={{ r: 6, strokeWidth: 0 }}
-                                    />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </ChartErrorBoundary>
+                        {isLoading ? (
+                            <Skeleton className="h-full w-full rounded-lg" />
+                        ) : (
+                            <ChartErrorBoundary>
+                                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                                    <LineChart data={borrowingData}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted/30" stroke="currentColor" />
+                                        <XAxis
+                                            dataKey="name"
+                                            stroke="#888888"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <YAxis
+                                            stroke="#888888"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            tickFormatter={(value) => `${value}`}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: "var(--popover)",
+                                                border: "1px solid var(--border)",
+                                                borderRadius: "var(--radius)",
+                                                color: "var(--popover-foreground)"
+                                            }}
+                                            itemStyle={{ color: "#3b82f6" }}
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="total"
+                                            stroke="#3b82f6"
+                                            strokeWidth={3}
+                                            dot={{ r: 4, fill: "#3b82f6", strokeWidth: 2, stroke: "#fff" }}
+                                            activeDot={{ r: 6, strokeWidth: 0 }}
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </ChartErrorBoundary>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -182,41 +249,45 @@ export default function DashboardPage() {
                         <CardDescription>Distribusi pengembalian berdasarkan kategori.</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[350px]">
-                        <ChartErrorBoundary>
-                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                                <BarChart data={returnData}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted/30" stroke="currentColor" />
-                                    <XAxis
-                                        dataKey="name"
-                                        stroke="#888888"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        hide
-                                    />
-                                    <YAxis
-                                        stroke="#888888"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                    />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: "var(--popover)",
-                                            border: "1px solid var(--border)",
-                                            borderRadius: "var(--radius)",
-                                            color: "var(--popover-foreground)"
-                                        }}
-                                        itemStyle={{ color: "#3b82f6" }}
-                                    />
-                                    <Bar dataKey="total" radius={[4, 4, 0, 0]}>
-                                        {returnData.map((entry: any, index: number) => (
-                                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#3b82f6" : "#6366f1"} fillOpacity={0.8} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </ChartErrorBoundary>
+                        {isLoading ? (
+                            <Skeleton className="h-full w-full rounded-lg" />
+                        ) : (
+                            <ChartErrorBoundary>
+                                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                                    <BarChart data={returnData}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted/30" stroke="currentColor" />
+                                        <XAxis
+                                            dataKey="name"
+                                            stroke="#888888"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            hide
+                                        />
+                                        <YAxis
+                                            stroke="#888888"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: "var(--popover)",
+                                                border: "1px solid var(--border)",
+                                                borderRadius: "var(--radius)",
+                                                color: "var(--popover-foreground)"
+                                            }}
+                                            itemStyle={{ color: "#3b82f6" }}
+                                        />
+                                        <Bar dataKey="total" radius={[4, 4, 0, 0]}>
+                                            {returnData.map((entry: any, index: number) => (
+                                                <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#3b82f6" : "#6366f1"} fillOpacity={0.8} />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </ChartErrorBoundary>
+                        )}
                     </CardContent>
                 </Card>
             </div>

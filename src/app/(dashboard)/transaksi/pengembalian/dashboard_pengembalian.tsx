@@ -9,17 +9,16 @@ import { isToday, parseISO } from "date-fns"
 import { useAuth } from "@/contexts/auth-context"
 
 export function DashboardPengembalianOverview() {
-    const { user } = useAuth()
-    const isPetugas = user?.role?.toLowerCase() === 'petugas'
+    const { user, isStaff } = useAuth()
     const { data: peminjamanResponse, isLoading: isLoadingPeminjaman } = useQuery({
         queryKey: ["peminjamans"],
         queryFn: apiService.peminjaman.getAll,
-        enabled: isPetugas
+        enabled: isStaff
     })
     const { data: pengembalianResponse, isLoading: isLoadingPengembalian } = useQuery({
         queryKey: ["pengembalians"],
         queryFn: apiService.pengembalian.getAll,
-        enabled: isPetugas
+        enabled: isStaff
     })
     const peminjamans = peminjamanResponse?.data || []
     const pengembalians = pengembalianResponse?.data || []
@@ -43,7 +42,7 @@ export function DashboardPengembalianOverview() {
         }
     }, [peminjamans, pengembalians])
 
-    if (!isPetugas) return null
+    if (!isStaff) return null
 
     const isLoading = isLoadingPeminjaman || isLoadingPengembalian
 

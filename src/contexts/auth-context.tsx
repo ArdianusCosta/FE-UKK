@@ -64,59 +64,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     return
                 }
 
-                // Jika API tidak mengembalikan permissions, coba mapping dari role
-                if (!userData.permissions && userData.role) {
-                    console.log("No permissions from API, using role-based fallback for:", userData.role)
-
-                    // Mapping permissions berdasarkan role
-                    const rolePermissions: Record<string, string[]> = {
-                        'admin': [
-                            'kategori.view', 'kategori.create', 'kategori.update', 'kategori.delete',
-                            'alat.view', 'alat.create', 'alat.update', 'alat.delete',
-                            'peminjaman.view', 'peminjaman.create', 'peminjaman.update', 'peminjaman.delete',
-                            'pengembalian.view', 'pengembalian.create', 'pengembalian.update', 'pengembalian.delete',
-                            'users.view', 'users.create', 'users.update', 'users.delete',
-                            'role.view', 'role.create', 'role.update', 'role.delete',
-                            'permission.view', 'permission.create', 'permission.update', 'permission.delete',
-                            'laporan.peminjaman', 'laporan.pengembalian',
-                            'log.view', 'pengaturan.update'
-                        ],
-                        'Admin': [
-                            'kategori.view', 'kategori.create', 'kategori.update', 'kategori.delete',
-                            'alat.view', 'alat.create', 'alat.update', 'alat.delete',
-                            'peminjaman.view', 'peminjaman.create', 'peminjaman.update', 'peminjaman.delete',
-                            'pengembalian.view', 'pengembalian.create', 'pengembalian.update', 'pengembalian.delete',
-                            'users.view', 'users.create', 'users.update', 'users.delete',
-                            'role.view', 'role.create', 'role.update', 'role.delete',
-                            'permission.view', 'permission.create', 'permission.update', 'permission.delete',
-                            'laporan.peminjaman', 'laporan.pengembalian',
-                            'log.view', 'pengaturan.update'
-                        ],
-                        'Petugas': [
-                            'peminjaman.view', 'peminjaman.approve',
-                            'pengembalian.view', 'pengembalian.monitor',
-                            'laporan.print', 'alat.view'
-                        ],
-                        'Peminjam': [
-                            'alat.view',
-                            'peminjaman.view', 'peminjaman.create',
-                            'pengembalian.view', 'pengembalian.create', 'pengembalian.scan'
-                        ],
-                        'superadmin': [
-                            'kategori.view', 'kategori.create', 'kategori.update', 'kategori.delete',
-                            'alat.view', 'alat.create', 'alat.update', 'alat.delete',
-                            'peminjaman.view', 'peminjaman.create', 'peminjaman.update', 'peminjaman.delete',
-                            'pengembalian.view', 'pengembalian.create', 'pengembalian.update', 'pengembalian.delete',
-                            'users.view', 'users.create', 'users.update', 'users.delete',
-                            'role.view', 'role.create', 'role.update', 'role.delete',
-                            'permission.view', 'permission.create', 'permission.update', 'permission.delete',
-                            'laporan.peminjaman', 'laporan.pengembalian',
-                            'log.view', 'pengaturan.update'
-                        ]
-                    }
-
-                    userData.permissions = rolePermissions[userData.role] || []
-                    console.log(`Applied ${userData.permissions.length} permissions for role: ${userData.role}`)
+                // Jika API tidak mengembalikan permissions, pastikan minimal array kosong
+                if (!userData.permissions) {
+                    userData.permissions = []
+                    console.log("No permissions from API, initialized empty array")
                 }
 
                 console.log("Final user data with permissions:", userData)
@@ -124,99 +75,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setIsLoading(false)
 
             } catch (apiError: any) {
-                console.error("API call failed, using fallback mock data")
+                console.error("API call failed")
                 console.error("API Error:", apiError)
-
-                // Fallback mock data jika API gagal
-                const fallbackUserData = {
-                    id: 1,
-                    name: "Admin User",
-                    email: "admin@example.com",
-                    role: "Admin",
-                    permissions: [
-                        'kategori.view', 'kategori.create', 'kategori.update', 'kategori.delete',
-                        'alat.view', 'alat.create', 'alat.update', 'alat.delete',
-                        'peminjaman.view', 'peminjaman.create', 'peminjaman.update', 'peminjaman.delete',
-                        'pengembalian.view', 'pengembalian.create', 'pengembalian.update', 'pengembalian.delete',
-                        'users.view', 'users.create', 'users.update', 'users.delete',
-                        'role.view', 'role.create', 'role.update', 'role.delete',
-                        'permission.view', 'permission.create', 'permission.update', 'permission.delete',
-                        'laporan.peminjaman', 'laporan.pengembalian',
-                        'log.view', 'pengaturan.update'
-                    ]
-                }
-
-                console.log("Using fallback user data:", fallbackUserData)
-                setUser(fallbackUserData)
+                setUser(null)
                 setIsLoading(false)
             }
 
         } catch (error: any) {
             console.error("Failed to fetch user:", error)
-            console.error("Error response:", error.response?.data)
-            console.error("Error status:", error.response?.status)
-
-            // Jika 401, clear token
-            if (error.response?.status === 401) {
-                console.log("Unauthorized, clearing token")
-                localStorage.removeItem("token")
-            }
-
             setUser(null)
             setIsLoading(false)
+            if (error.response?.status === 401) {
+                localStorage.removeItem("token")
+            }
         }
     }
 
     React.useEffect(() => {
         refreshUser()
 
-        // Listen for storage changes (for cross-tab sync)
         const handleStorageChange = (e: StorageEvent) => {
             if (e.key === 'token') {
-                console.log('Token changed in storage, refreshing user')
                 refreshUser()
             }
         }
 
         window.addEventListener('storage', handleStorageChange)
-
-        return () => {
-            window.removeEventListener('storage', handleStorageChange)
-        }
+        return () => window.removeEventListener('storage', handleStorageChange)
     }, [])
 
     const hasPermission = (permission: string): boolean => {
-        console.log(`Checking permission: "${permission}"`)
-        console.log("Current user:", user)
-
-        if (!user) {
-            console.log(`Permission check failed for "${permission}": User is null`)
-            return false
-        }
-
-        if (!user.permissions || !Array.isArray(user.permissions)) {
-            console.log(`Permission check failed for "${permission}": No permissions array found`, user)
-            return false
-        }
-
-        const hasAccess = user.permissions.includes(permission)
-        console.log(`Permission check for "${permission}": ${hasAccess}`, user.permissions)
-        return hasAccess
+        if (!user?.permissions || !Array.isArray(user.permissions)) return false
+        return user.permissions.includes(permission)
     }
 
     const hasAnyPermission = (permissions: string[]): boolean => {
         if (!user?.permissions || !Array.isArray(user.permissions)) return false
-        return permissions.some(permission => user.permissions?.includes(permission) || false)
+        return permissions.some(permission => user.permissions?.includes(permission))
     }
 
     const hasAllPermissions = (permissions: string[]): boolean => {
         if (!user?.permissions || !Array.isArray(user.permissions)) return false
-        return permissions.every(permission => user.permissions?.includes(permission) || false)
+        return permissions.every(permission => user.permissions?.includes(permission))
     }
 
-    const isAdmin = user?.role === 'Admin'
-    const isStaff = user?.role === 'Admin' || user?.role === 'Petugas'
-    const isBorrower = user?.role === 'Peminjam'
+    // Helper flags based on key permissions instead of hardcoded role names
+    const isAdmin = hasPermission('role.view') || hasPermission('users.view')
+    const isStaff = hasPermission('peminjaman.approve') || hasPermission('pengembalian.monitor') || isAdmin
+    const isBorrower = hasPermission('peminjaman.create') && !hasPermission('peminjaman.approve')
 
     const value = {
         user,

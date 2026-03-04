@@ -15,6 +15,7 @@ import { ImageIcon, Plus, Edit2, Trash2 } from "lucide-react"
 import { apiService } from "../../../../../services/api.service"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000"
 
@@ -197,11 +198,21 @@ export default function AlatPage() {
     return (
         <PermissionGuard permission="alat.view">
             <div className="space-y-6">
+                {isLoadingAlat ? (
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="space-y-2">
+                            <Skeleton className="h-8 w-48" />
+                            <Skeleton className="h-4 w-32" />
+                        </div>
+                        {isStaff && <Skeleton className="h-10 w-full sm:w-32" />}
+                    </div>
+                ) : null}
                 <DataTable
                     title="Daftar Alat"
                     data={alats}
                     columns={columns}
                     loading={isLoadingAlat}
+                    showHeading={!isLoadingAlat}
                     onAdd={isStaff ? (() => { resetForm(); setIsOpenAdd(true) }) : undefined}
                     onEdit={isStaff ? ((alat) => {
                         const row = alat as any

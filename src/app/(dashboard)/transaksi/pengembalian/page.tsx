@@ -41,10 +41,7 @@ import { Badge } from "@/components/ui/badge"
 import { DashboardPengembalianOverview } from "./dashboard_pengembalian"
 
 export default function PengembalianPage() {
-    const { user } = useAuth()
-    const isAdmin = user?.role?.toLowerCase() === 'admin'
-    const isPetugas = user?.role?.toLowerCase() === 'petugas'
-    const isStaff = isAdmin || isPetugas
+    const { user, isStaff, isAdmin } = useAuth()
 
     const queryClient = useQueryClient()
     const [isAddModalOpen, setIsAddModalOpen] = React.useState(false)

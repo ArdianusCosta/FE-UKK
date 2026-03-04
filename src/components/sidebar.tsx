@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation"
 import { apiService } from "../../services/api.service"
 import { toast } from "sonner"
 import { useAuth } from "@/contexts/auth-context"
-import {Collapsible,CollapsibleContent,CollapsibleTrigger,} from "@/components/ui/collapsible"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger, } from "@/components/ui/collapsible"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
@@ -65,10 +65,6 @@ function SidebarContent() {
 
     const filterNavItems = (items: NavItem[]): NavItem[] => {
         return items.filter(item => {
-            if (item.title === "Master Data" && user?.role?.toLowerCase() === 'petugas') {
-                return false
-            }
-
             if (item.permission) {
                 if (Array.isArray(item.permission)) {
                     return hasAnyPermission(item.permission)

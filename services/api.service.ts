@@ -119,12 +119,17 @@ export const apiService = {
             const response = await api.get(`/messages/${id}`)
             return response.data;
         },
-        kirimChat: async (data: { receiver_id: number; message?: string; image?: File }) => {
+        kirimChat: async (data: { receiver_id: number; message?: string; image?: File; file?: File }) => {
             const fd = new FormData();
             fd.append('receiver_id', String(data.receiver_id));
             if (data.message) fd.append('message', data.message);
             if (data.image) fd.append('image', data.image);
+            if (data.file) fd.append('file', data.file);
             const response = await api.post('/messages', fd);
+            return response.data;
+        },
+        updateMessage: async (id: number, data: { message: string }) => {
+            const response = await api.patch(`/messages/${id}`, data);
             return response.data;
         },
         deleteMessage: async (id: number) => {

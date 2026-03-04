@@ -11,5 +11,7 @@ export interface Message {
   receiver_id: number
   message: string | null
   image?: string | null
+  file?: string | null
   created_at: string
+  updated_at: string
 }

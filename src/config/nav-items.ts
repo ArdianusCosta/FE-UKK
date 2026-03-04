@@ -81,6 +81,7 @@ export const navItems: NavItem[] = [
         title: "Laporan",
         href: "/laporan",
         icon: FileText,
+        permission: "laporan.view",
     },
     {
         title: "Log Aktivitas",

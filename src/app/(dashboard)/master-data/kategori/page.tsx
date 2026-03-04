@@ -12,8 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { apiService } from "../../../../../services/api.service"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function KategoriPage() {
+    const { isStaff } = useAuth()
     const queryClient = useQueryClient()
     const [isOpenAdd, setIsOpenAdd] = React.useState(false)
     const [isOpenEdit, setIsOpenEdit] = React.useState(false)
@@ -89,11 +92,21 @@ export default function KategoriPage() {
     return (
         <PermissionGuard permission="kategori.view">
             <div className="space-y-6">
+                {isLoading ? (
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="space-y-2">
+                            <Skeleton className="h-8 w-48" />
+                            <Skeleton className="h-4 w-32" />
+                        </div>
+                        {isStaff && <Skeleton className="h-10 w-full sm:w-32" />}
+                    </div>
+                ) : null}
                 <DataTable
                     title="Kategori Alat"
                     data={data}
                     columns={columns}
                     loading={isLoading}
+                    showHeading={!isLoading}
                     onAdd={() => {
                         resetForm()
                         setIsOpenAdd(true)
@@ -110,83 +123,83 @@ export default function KategoriPage() {
                     }}
                 />
 
-            <FormModal
-                isOpen={isOpenAdd}
-                onClose={() => setIsOpenAdd(false)}
-                title="Tambah Kategori"
-                onSave={() => addMutation.mutate({ nama_kategori_alat: namaKategori, status })}
-                loading={addMutation.isPending}
-            >
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="cat-name">Nama Kategori</Label>
-                        <Input
-                            id="cat-name"
-                            placeholder="Contoh: Elektronik"
-                            className="glass"
-                            value={namaKategori}
-                            onChange={(e) => setNamaKategori(e.target.value)}
-                        />
+                <FormModal
+                    isOpen={isOpenAdd}
+                    onClose={() => setIsOpenAdd(false)}
+                    title="Tambah Kategori"
+                    onSave={() => addMutation.mutate({ nama_kategori_alat: namaKategori, status })}
+                    loading={addMutation.isPending}
+                >
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="cat-name">Nama Kategori</Label>
+                            <Input
+                                id="cat-name"
+                                placeholder="Contoh: Elektronik"
+                                className="glass"
+                                value={namaKategori}
+                                onChange={(e) => setNamaKategori(e.target.value)}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="cat-status">Status</Label>
+                            <Select value={status} onValueChange={setStatus}>
+                                <SelectTrigger className="glass w-full">
+                                    <SelectValue placeholder="Pilih status" />
+                                </SelectTrigger>
+                                <SelectContent className="glass">
+                                    <SelectItem value="active">Active</SelectItem>
+                                    <SelectItem value="inactive">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="cat-status">Status</Label>
-                        <Select value={status} onValueChange={setStatus}>
-                            <SelectTrigger className="glass w-full">
-                                <SelectValue placeholder="Pilih status" />
-                            </SelectTrigger>
-                            <SelectContent className="glass">
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="inactive">Inactive</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-            </FormModal>
+                </FormModal>
 
-            <FormModal
-                isOpen={isOpenEdit}
-                onClose={() => setIsOpenEdit(false)}
-                title="Edit Kategori"
-                onSave={() => updateMutation.mutate({
-                    id: selectedKategori.id,
-                    payload: { nama_kategori_alat: namaKategori, status }
-                })}
-                saveLabel="Perbarui"
-                loading={updateMutation.isPending}
-            >
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="edit-cat-name">Nama Kategori</Label>
-                        <Input
-                            id="edit-cat-name"
-                            value={namaKategori}
-                            onChange={(e) => setNamaKategori(e.target.value)}
-                            className="glass"
-                        />
+                <FormModal
+                    isOpen={isOpenEdit}
+                    onClose={() => setIsOpenEdit(false)}
+                    title="Edit Kategori"
+                    onSave={() => updateMutation.mutate({
+                        id: selectedKategori.id,
+                        payload: { nama_kategori_alat: namaKategori, status }
+                    })}
+                    saveLabel="Perbarui"
+                    loading={updateMutation.isPending}
+                >
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="edit-cat-name">Nama Kategori</Label>
+                            <Input
+                                id="edit-cat-name"
+                                value={namaKategori}
+                                onChange={(e) => setNamaKategori(e.target.value)}
+                                className="glass"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="edit-cat-status">Status</Label>
+                            <Select value={status} onValueChange={setStatus}>
+                                <SelectTrigger className="glass w-full">
+                                    <SelectValue placeholder="Pilih status" />
+                                </SelectTrigger>
+                                <SelectContent className="glass">
+                                    <SelectItem value="active">Active</SelectItem>
+                                    <SelectItem value="inactive">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="edit-cat-status">Status</Label>
-                        <Select value={status} onValueChange={setStatus}>
-                            <SelectTrigger className="glass w-full">
-                                <SelectValue placeholder="Pilih status" />
-                            </SelectTrigger>
-                            <SelectContent className="glass">
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="inactive">Inactive</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-            </FormModal>
+                </FormModal>
 
-            <ConfirmDialog
-                isOpen={isOpenDelete}
-                onClose={() => setIsOpenDelete(false)}
-                onConfirm={() => deleteMutation.mutate(selectedKategori.id)}
-                title="Hapus Kategori?"
-                description={`Apakah Anda yakin ingin menghapus kategori "${selectedKategori?.nama_kategori_alat}"?`}
-                loading={deleteMutation.isPending}
-            />
+                <ConfirmDialog
+                    isOpen={isOpenDelete}
+                    onClose={() => setIsOpenDelete(false)}
+                    onConfirm={() => deleteMutation.mutate(selectedKategori.id)}
+                    title="Hapus Kategori?"
+                    description={`Apakah Anda yakin ingin menghapus kategori "${selectedKategori?.nama_kategori_alat}"?`}
+                    loading={deleteMutation.isPending}
+                />
             </div>
         </PermissionGuard>
     )
