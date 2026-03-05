@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import ReactQueryProvider from "./react-query-provider";
+import Head from "next/head";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,6 +19,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Sistem Peminjaman Alat",
   description: "Modern Equipment Borrowing System UI",
+  manifest: "/manifest.json",
+  themeColor: "#0f172a",
 };
 
 export default function RootLayout({
