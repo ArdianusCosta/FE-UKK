@@ -13,7 +13,7 @@ export default function PengaturanPage() {
         <div className="max-w-6xl mx-auto space-y-8 py-4">
             <div className="flex flex-col gap-1">
                 <h1 className="text-3xl font-bold tracking-tight dark:text-white">Pengaturan Sistem</h1>
-                <p className="text-muted-foreground">Konfigurasi preferensi dan identitas sistem AlatKita.</p>
+                <p className="text-muted-foreground">Konfigurasi preferensi dan identitas sistem Sipinjam.</p>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">

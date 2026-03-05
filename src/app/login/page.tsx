@@ -55,9 +55,9 @@ export default function LoginPage() {
                             SPA
                         </div>
                     </div>
-                    <CardTitle className="text-2xl font-bold tracking-tight dark:text-white">AlatKita</CardTitle>
+                    <CardTitle className="text-2xl font-bold tracking-tight dark:text-white">Sipinjam</CardTitle>
                     <CardDescription className="text-muted-foreground">
-                        Sistem Peminjaman Alat Sekolah
+                        Sistem Peminjaman Alat
                     </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleLogin}>
@@ -69,7 +69,7 @@ export default function LoginPage() {
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="admin@sekolah.sch.id"
+                                    placeholder="nama@gmail.com"
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
