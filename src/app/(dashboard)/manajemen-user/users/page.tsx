@@ -125,7 +125,7 @@ export default function UsersPage() {
                 <div className="w-10 h-10 rounded-full overflow-hidden border border-border/50 bg-muted flex items-center justify-center">
                     {val ? (
                         <img
-                            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${val}`}
+                            src={val.startsWith('http') ? val : `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/${val}`}
                             alt="User"
                             className="w-full h-full object-cover"
                             onError={(e: any) => {

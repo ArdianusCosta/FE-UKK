@@ -33,7 +33,8 @@ export default function ProfilePage() {
                 bio_singkat_ajasih: user.bio_singkat_ajasih || "",
             })
             if (user.foto) {
-                setPreviewUrl(`${BACKEND_URL}/storage/${user.foto}`)
+                const photoUrl = user.foto.startsWith('http') ? user.foto : `${BACKEND_URL}/storage/${user.foto}`
+                setPreviewUrl(photoUrl)
             }
         }
     }, [user])

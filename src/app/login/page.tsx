@@ -35,6 +35,10 @@ export default function LoginPage() {
         }
     }
 
+    const handleGoogleLogin = () => {
+        window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google`
+    }
+
     return (
         <div className="dark min-h-screen w-full flex items-center justify-center gradient-bg p-4 overflow-hidden relative">
             <InteractiveParticles />
@@ -126,6 +130,7 @@ export default function LoginPage() {
                         <Button
                             type="button"
                             variant="outline"
+                            onClick={handleGoogleLogin}
                             className="w-full glass border-white/10 hover:bg-white/5 h-11 flex items-center justify-center gap-2"
                         >
                             <svg className="h-5 w-5" viewBox="0 0 24 24">

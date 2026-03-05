@@ -28,7 +28,7 @@ export const apiService = {
             if (data.foto instanceof File) {
                 fd.append("foto", data.foto);
             }
-            const response = await api.post(`/users-profile/${id}`, fd);
+            const response = await api.post("/user/update", fd);
             return response.data;
         }
     },

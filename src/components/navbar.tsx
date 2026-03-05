@@ -59,7 +59,7 @@ export function Navbar() {
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="relative h-9 w-9 rounded-full glass border border-sidebar-border">
                                 <Avatar className="h-8 w-8">
-                                    <AvatarImage src={user?.foto ? `${BACKEND_URL}/storage/${user.foto}` : ""} alt={`@${user?.name}`} />
+                                    <AvatarImage src={user?.foto ? (user.foto.startsWith('http') ? user.foto : `${BACKEND_URL}/storage/${user.foto}`) : ""} alt={`@${user?.name}`} />
                                     <AvatarFallback className="bg-primary/10 text-primary font-bold">
 
                                         {initials}
