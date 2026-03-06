@@ -126,13 +126,18 @@ export default function DashboardPage() {
     const borrowingData = stats.peminjaman_activity.length > 0
         ? stats.peminjaman_activity
         : [
-            { name: "Mon", total: 0 },
-            { name: "Tue", total: 0 },
-            { name: "Wed", total: 0 },
-            { name: "Thu", total: 0 },
-            { name: "Fri", total: 0 },
-            { name: "Sat", total: 0 },
-            { name: "Sun", total: 0 },
+            { name: "Jan", total: 0 },
+            { name: "Feb", total: 0 },
+            { name: "Mar", total: 0 },
+            { name: "Apr", total: 0 },
+            { name: "May", total: 0 },
+            { name: "Jun", total: 0 },
+            { name: "Jul", total: 0 },
+            { name: "Aug", total: 0 },
+            { name: "Sep", total: 0 },
+            { name: "Oct", total: 0 },
+            { name: "Nov", total: 0 },
+            { name: "Dec", total: 0 },
         ]
 
     const returnData = stats.pengembalian_distribution.length > 0
@@ -195,7 +200,7 @@ export default function DashboardPage() {
                 <Card className="col-span-1 lg:col-span-4 glass border-border/50 shadow-lg">
                     <CardHeader>
                         <CardTitle>Overview Peminjaman</CardTitle>
-                        <CardDescription>Aktivitas peminjaman alat dalam 7 hari terakhir.</CardDescription>
+                        <CardDescription>Aktivitas peminjaman alat dalam 12 bulan terakhir.</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[350px]">
                         {isLoading ? (
@@ -262,7 +267,6 @@ export default function DashboardPage() {
                                             fontSize={12}
                                             tickLine={false}
                                             axisLine={false}
-                                            hide
                                         />
                                         <YAxis
                                             stroke="#888888"
