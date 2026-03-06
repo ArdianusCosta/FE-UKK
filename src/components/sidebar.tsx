@@ -14,6 +14,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger, } from "@/componen
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function Sidebar() {
     return (
@@ -91,6 +92,10 @@ function SidebarContent() {
     }
 
     const filteredNavItems = filterNavItems(navItems)
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000"
+    const initials = user?.name
+        ? user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+        : "U"
 
     return (
         <div className="flex flex-col h-full glass lg:bg-transparent lg:backdrop-blur-none">
@@ -164,9 +169,12 @@ function SidebarContent() {
             <div className="p-4 border-t border-sidebar-border bg-sidebar-accent/20">
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-xs font-bold text-primary">
-                            {user?.name?.charAt(0).toUpperCase() || 'U'}
-                        </div>
+                        <Avatar className="h-9 w-9 border border-sidebar-border">
+                            <AvatarImage src={user?.foto ? (user.foto.startsWith('http') ? user.foto : `${BACKEND_URL}/storage/${user.foto}`) : ""} alt={`@${user?.name}`} />
+                            <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                                {initials}
+                            </AvatarFallback>
+                        </Avatar>
                         <div className="flex flex-col">
                             <span className="text-sm font-medium dark:text-white line-clamp-1">{user?.name || 'User'}</span>
                             <span className="text-xs text-muted-foreground line-clamp-1">{user?.role || 'User'}</span>

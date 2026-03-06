@@ -13,32 +13,10 @@ export default function PengaturanPage() {
         <div className="max-w-6xl mx-auto space-y-8 py-4">
             <div className="flex flex-col gap-1">
                 <h1 className="text-3xl font-bold tracking-tight dark:text-white">Pengaturan Sistem</h1>
-                <p className="text-muted-foreground">Konfigurasi preferensi dan identitas sistem Sipinjam.</p>
+                <p className="text-muted-foreground">Konfigurasi preferensi dan identitas Sipinjam.</p>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-2">
-                <Card className="glass border-border/50 shadow-xl lg:col-span-1">
-                    <CardHeader className="pb-4 flex flex-row items-center gap-4 space-y-0">
-                        <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-school"><path d="m12 22 10-5V7L12 2 2 7v10Z" /><path d="m2 7 10 5 10-5" /><path d="M12 22V12" /></svg>
-                        </div>
-                        <div>
-                            <CardTitle className="text-xl">Informasi Sekolah</CardTitle>
-                            <CardDescription>Detail identitas instansi.</CardDescription>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4 pt-4">
-                        <div className="space-y-2">
-                            <Label className="text-sm font-medium">Nama Sekolah</Label>
-                            <Input defaultValue="SMK Negeri 1 Alat" className="glass border-border/50 h-11 focus-visible:ring-primary/20" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label className="text-sm font-medium">Alamat Lengkap</Label>
-                            <Input defaultValue="Jl. Raya Pendidikan No. 123" className="glass border-border/50 h-11 focus-visible:ring-primary/20" />
-                        </div>
-                    </CardContent>
-                </Card>
-
+            <div className="grid gap-6 lg:grid-cols-1">
                 <Card className="glass border-border/50 shadow-xl lg:col-span-1">
                     <CardHeader className="pb-4 flex flex-row items-center gap-4 space-y-0">
                         <div className="p-2.5 bg-primary/10 rounded-xl text-primary">

@@ -2,6 +2,7 @@ export interface User {
   id: number
   name: string
   role?: string
+  foto?: string
   unread_count?: number
 }
 

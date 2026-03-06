@@ -233,6 +233,19 @@ export function ChatSheet({ children }: { children: React.ReactNode }) {
                 <ChevronLeft className="h-5 w-5" />
               </Button>
             )}
+            {selectedContact?.foto ? (
+              <div className="w-8 h-8 rounded-full overflow-hidden">
+                <img
+                  src={`${BACKEND_URL}/storage/${selectedContact.foto}`}
+                  alt={selectedContact.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : selectedContact ? (
+              <Avatar className="h-8 w-8">
+                <AvatarFallback>{selectedContact.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+            ) : null}
             <SheetTitle>{selectedContact ? selectedContact.name : "Chat"}</SheetTitle>
           </div>
         </SheetHeader>
@@ -259,7 +272,15 @@ export function ChatSheet({ children }: { children: React.ReactNode }) {
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-3">
                       <Avatar className="relative">
-                        <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                        {user.foto ? (
+                          <img
+                            src={`${BACKEND_URL}/storage/${user.foto}`}
+                            alt={user.name}
+                            className="h-full w-full object-cover rounded-full"
+                          />
+                        ) : (
+                          <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                        )}
                         {typingUsers[user.id] && (
                           <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>

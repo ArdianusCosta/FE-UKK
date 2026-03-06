@@ -11,6 +11,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MobileSidebar } from "@/components/sidebar"
 import { ChatSheet } from "@/components/chat-sheet"
 import { useAuth } from "@/contexts/auth-context"
+import { useQuery } from "@tanstack/react-query"
+import { apiService } from "../../services/api.service"
+import { User as UserType } from "@/types/chat.types"
 
 
 export function Navbar() {
@@ -19,6 +22,16 @@ export function Navbar() {
     const initials = user?.name
         ? user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
         : "U"
+
+    const { data: contacts = [] } = useQuery<UserType[]>({
+        queryKey: ["users-chat"],
+        queryFn: () => apiService.chat.getChat(),
+        refetchInterval: 30000, // Refetch every 30s to keep badge updated
+    })
+
+    const totalUnread = Array.isArray(contacts)
+        ? contacts.reduce((sum, contact) => sum + (contact.unread_count || 0), 0)
+        : 0
 
     return (
         <header className="h-16 sticky top-0 z-40 glass border-b transition-all duration-300">
@@ -44,7 +57,9 @@ export function Navbar() {
                     <ChatSheet>
                         <Button variant="ghost" size="icon" className="glass h-9 w-9 text-muted-foreground relative group">
                             <MessageSquare className="h-5 w-5 group-hover:text-primary transition-colors" />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-background animate-pulse"></span>
+                            {totalUnread > 0 && (
+                                <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-background animate-pulse"></span>
+                            )}
                         </Button>
                     </ChatSheet>
 
