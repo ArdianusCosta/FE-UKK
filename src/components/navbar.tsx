@@ -45,13 +45,13 @@ export function Navbar() {
                             </Button>
                         </MobileSidebar>
                     </div>
-                    <div className="relative w-full max-w-md hidden md:block">
+                    {/* <div className="relative w-full max-w-md hidden md:block">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="Cari sesuatu..."
                             className="pl-10 glass border-sidebar-border focus-visible:ring-primary/20"
                         />
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className="flex items-center gap-1.5 sm:gap-4">

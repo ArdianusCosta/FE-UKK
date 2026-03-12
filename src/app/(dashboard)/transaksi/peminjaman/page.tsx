@@ -13,7 +13,7 @@ import { toast } from "sonner"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { apiService } from "../../../../../services/api.service"
 import { QRCodeSVG } from "qrcode.react"
-import { FileText, Check, X, Loader2 } from "lucide-react"
+import { FileText, Check, X, Loader2, Edit2, Trash2 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
@@ -229,29 +229,14 @@ export default function PeminjamanPage() {
                     })
                     setIsOpenAdd(true)
                 }) : undefined}
-                onEdit={isAdmin || isBorrower ? ((trx) => {
-                    setSelectedTrx(trx)
-                    setFormData({
-                        peminjam_id: trx.peminjam_id.toString(),
-                        alat_id: trx.alat_id.toString(),
-                        tanggal_pinjam: trx.tanggal_pinjam,
-                        tanggal_kembali: trx.tanggal_kembali || "",
-                        status: trx.status
-                    })
-                    setIsOpenEdit(true)
-                }) : undefined}
-                onDelete={isAdmin || isBorrower ? ((trx) => {
-                    setSelectedTrx(trx)
-                    setIsOpenDelete(true)
-                }) : undefined}
                 renderActions={(item) => (
-                    <div className="flex items-center gap-3">
-                        {hasPermission('peminjaman.approve') && (
+                    <div className="flex items-center gap-2">
+                        {user?.role === 'Petugas' && item.status === 'Pending' && (
                             <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
                                 <span className="text-[10px] font-medium uppercase tracking-wider opacity-50">Setujui</span>
                                 <Switch
-                                    checked={item.status !== 'Pending'}
-                                    disabled={item.status !== 'Pending' || approvingId === item.id}
+                                    checked={false}
+                                    disabled={approvingId === item.id}
                                     onCheckedChange={(checked) => {
                                         if (checked) approveMutation.mutate(item.id)
                                     }}
@@ -262,17 +247,58 @@ export default function PeminjamanPage() {
                                 )}
                             </div>
                         )}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-primary hover:text-primary/80 hover:bg-primary/10"
-                            onClick={() => {
-                                setSelectedTrx(item)
-                                setIsOpenReceipt(true)
-                            }}
-                        >
-                            <FileText className="h-4 w-4" />
-                        </Button>
+                        
+                        {item.status !== 'Pending' ? (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-primary hover:text-primary/80 hover:bg-primary/10"
+                                onClick={() => {
+                                    setSelectedTrx(item)
+                                    setIsOpenReceipt(true)
+                                }}
+                                title="Lihat Resi"
+                            >
+                                <FileText className="h-4 w-4" />
+                            </Button>
+                        ) : (
+                            (isAdmin || isBorrower) && (
+                                <>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-500/10"
+                                        onClick={() => {
+                                            setSelectedTrx(item)
+                                            setFormData({
+                                                peminjam_id: item.peminjam_id.toString(),
+                                                alat_id: item.alat_id.toString(),
+                                                tanggal_pinjam: item.tanggal_pinjam,
+                                                tanggal_kembali: item.tanggal_kembali || "",
+                                                status: item.status
+                                            })
+                                            setIsOpenEdit(true)
+                                        }}
+                                        title="Edit"
+                                    >
+                                        <Edit2 className="h-4 w-4" />
+                                    </Button>
+
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                                        onClick={() => {
+                                            setSelectedTrx(item)
+                                            setIsOpenDelete(true)
+                                        }}
+                                        title="Hapus"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </>
+                            )
+                        )}
                     </div>
                 )}
             />

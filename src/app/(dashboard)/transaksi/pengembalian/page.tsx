@@ -10,7 +10,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { apiService } from "../../../../../services/api.service"
 import { QRScanner } from "@/components/qr-scanner"
 import { useAuth } from "@/contexts/auth-context"
-import { Scan, Trash2, Plus, History, Loader2, Search, Edit2, AlertCircle, RefreshCcw, Eye } from "lucide-react"
+import { Scan, Trash2, Plus, History, Loader2, Search, Edit2, AlertCircle, RefreshCcw, Eye, ScanLine } from "lucide-react"
 import {
     Table,
     TableBody,
@@ -53,6 +53,7 @@ export default function PengembalianPage() {
     const [detailId, setDetailId] = React.useState<number | null>(null)
     const [isDetailModalOpen, setIsDetailModalOpen] = React.useState(false)
     const [returnToDelete, setReturnToDelete] = React.useState<any>(null)
+    const [isScanConfirmOpen, setIsScanConfirmOpen] = React.useState(false)
     const [searchQuery, setSearchQuery] = React.useState("")
     const [imagePreview, setImagePreview] = React.useState<string | null>(null)
 
@@ -64,13 +65,15 @@ export default function PengembalianPage() {
         kondisi_kembali: string;
         catatan: string;
         foto: File | null;
+        metode: string;
     }>({
         peminjaman_id: "",
         kode_peminjaman: "",
         tanggal_kembali: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
         kondisi_kembali: "baik",
         catatan: "",
-        foto: null
+        foto: null,
+        metode: "manual"
     })
 
     // Queries
@@ -97,12 +100,10 @@ export default function PengembalianPage() {
         }
     }, [detailData])
 
-    // Filtered Peminjaman (only "Dipinjam")
     const activePeminjamans = React.useMemo(() => {
         return peminjamans?.data?.filter((p: any) => p.status === "Dipinjam" || p.status === "Terlambat") || []
     }, [peminjamans])
 
-    // Mutations
     const createMutation = useMutation({
         mutationFn: apiService.pengembalian.create,
         onSuccess: () => {
@@ -169,11 +170,12 @@ export default function PengembalianPage() {
             tanggal_kembali: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
             kondisi_kembali: "baik",
             catatan: "",
-            foto: null
+            foto: null,
+            metode: "manual"
         })
         setImagePreview(null)
-        setEditingReturn(null)
-        setViewingReturn(null)
+        setIsEditModalOpen(false)
+        setIsScanConfirmOpen(false)
     }
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
@@ -207,22 +209,25 @@ export default function PengembalianPage() {
                 toast.error("Pilih data peminjaman")
                 return
             }
-            createMutation.mutate({ ...formData, metode: "manual" })
+            createMutation.mutate(formData)
         }
     }
 
     const handleScan = (decodedText: string) => {
         const found = activePeminjamans.find((p: any) => p.kode === decodedText)
         if (found) {
-            toast.success(`Scanning successful: ${found.kode}`)
-            createMutation.mutate({
-                peminjaman_id: found.id,
+            toast.success(`Scan berhasil: ${found.kode}`)
+            setFormData({
+                peminjaman_id: found.id.toString(),
                 kode_peminjaman: found.kode,
+                tanggal_kembali: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
                 kondisi_kembali: "baik",
-                tanggal_kembali: new Date().toISOString(),
+                catatan: "",
+                foto: null,
                 metode: "scan"
             })
             setIsScannerOpen(false)
+            setIsScanConfirmOpen(true)
         } else {
             toast.error("Kode tidak ditemukan atau sudah dikembalikan")
         }
@@ -544,29 +549,6 @@ export default function PengembalianPage() {
                                                     >
                                                         <Eye className="h-4 w-4" />
                                                     </Button>
-                                                    {isStaff && (
-                                                        <>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                className="h-8 w-8 text-primary/70 hover:text-primary hover:bg-primary/10 transition-colors"
-                                                                onClick={() => handleEdit(p)}
-                                                            >
-                                                                <Edit2 className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                className="h-8 w-8 text-destructive/50 hover:text-destructive hover:bg-destructive/10 transition-colors"
-                                                                onClick={() => {
-                                                                    setReturnToDelete(p)
-                                                                    setIsDeleteModalOpen(true)
-                                                                }}
-                                                            >
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </Button>
-                                                        </>
-                                                    )}
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -776,6 +758,142 @@ export default function PengembalianPage() {
                             </Button>
                         </form>
                     </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Scan Confirm Modal */}
+            <Dialog open={isScanConfirmOpen} onOpenChange={(open) => {
+                setIsScanConfirmOpen(open)
+                if (!open) resetForm()
+            }}>
+                <DialogContent className="sm:max-w-[450px] glass border-white/10 max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <ScanLine className="h-5 w-5 text-primary" />
+                            Konfirmasi Pengembalian
+                        </DialogTitle>
+                        <DialogDescription className="text-slate-400">
+                            Lengkapi kondisi alat untuk: <span className="font-bold text-white uppercase tracking-wider">{formData.kode_peminjaman}</span>
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={handleSubmit} className="space-y-6 py-4">
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="confirm_kondisi" className="text-xs font-bold uppercase tracking-widest opacity-70">Pilih Kondisi Alat Saat Ini</Label>
+                                <Select
+                                    value={formData.kondisi_kembali}
+                                    onValueChange={(val) => setFormData(p => ({ ...p, kondisi_kembali: val }))}
+                                >
+                                    <SelectTrigger className="glass h-12 w-full border-primary/20 hover:border-primary/50 transition-all">
+                                        <SelectValue placeholder="Pilih Kondisi" />
+                                    </SelectTrigger>
+                                    <SelectContent className="glass border-white/10">
+                                        <SelectItem value="baik">Kondisi Baik (Siap Pinjam)</SelectItem>
+                                        <SelectItem value="rusak">Kondisi Rusak (Perlu Perbaikan)</SelectItem>
+                                        <SelectItem value="hilang">Dinyatakan Hilang</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="confirm_catatan" className="text-xs font-bold uppercase tracking-widest opacity-70">Catatan/Keterangan</Label>
+                                <Input
+                                    id="confirm_catatan"
+                                    placeholder="Contoh: Lecet sedikit, baterai habis, dll..."
+                                    className="glass h-12"
+                                    value={formData.catatan}
+                                    onChange={(e) => setFormData(p => ({ ...p, catatan: e.target.value }))}
+                                />
+                            </div>
+
+                            {formData.kondisi_kembali === 'rusak' && (
+                                <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <Label className="text-destructive flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
+                                        <AlertCircle className="h-3 w-3" />
+                                        Foto Bukti Kerusakan (Wajib)
+                                    </Label>
+                                    <div
+                                        className="relative group cursor-pointer"
+                                        onClick={() => document.getElementById("confirm-foto-upload")?.click()}
+                                    >
+                                        <div className={`
+                                            border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-all
+                                            ${imagePreview ? 'border-destructive/50 bg-destructive/5' : 'border-white/10 hover:border-destructive/40'}
+                                        `}>
+                                            {imagePreview ? (
+                                                <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-white/10 shadow-inner">
+                                                    <img
+                                                        src={imagePreview}
+                                                        alt="Preview"
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white font-medium text-sm">
+                                                        Ganti Foto
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col items-center gap-2 py-4">
+                                                    <div className="h-12 w-12 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-destructive/10 transition-colors">
+                                                        <Plus className="h-6 w-6 text-muted-foreground group-hover:text-destructive" />
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <div className="text-sm font-bold">Klik untuk upload foto</div>
+                                                        <p className="text-[10px] text-muted-foreground italic">Foto alat yang rusak sebagai bukti</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <Input
+                                        id="confirm-foto-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={handleFileChange}
+                                    />
+                                    {imagePreview && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            className="w-full text-destructive/70 hover:text-destructive hover:bg-destructive/10 h-8 text-[11px] rounded-lg mt-1"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                setImagePreview(null)
+                                                setFormData(p => ({ ...p, foto: null }))
+                                            }}
+                                        >
+                                            <Trash2 className="h-3 w-3 mr-2" />
+                                            Hapus & Ganti Foto
+                                        </Button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="pt-2">
+                            <Button 
+                                type="submit" 
+                                disabled={createMutation.isPending || (formData.kondisi_kembali === 'rusak' && !formData.foto)} 
+                                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
+                            >
+                                {createMutation.isPending ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Sedang Menyimpan...
+                                    </>
+                                ) : (
+                                    "Konfirmasi & Simpan Pengembalian"
+                                )}
+                            </Button>
+                            {formData.kondisi_kembali === 'rusak' && !formData.foto && (
+                                <p className="text-[10px] text-destructive/70 text-center mt-2 italic font-medium">
+                                    * Mohon upload foto bukti kerusakan terlebih dahulu.
+                                </p>
+                            )}
+                        </div>
+                    </form>
                 </DialogContent>
             </Dialog>
 
