@@ -25,6 +25,9 @@ export const apiService = {
             if (data.bio_singkat_ajasih) fd.append("bio_singkat_ajasih", data.bio_singkat_ajasih);
             if (data.jenis_kelamin) fd.append("jenis_kelamin", data.jenis_kelamin);
             if (data.status) fd.append("status", data.status);
+            if (data.current_password) fd.append("current_password", data.current_password);
+            if (data.password) fd.append("password", data.password);
+            if (data.password_confirmation) fd.append("password_confirmation", data.password_confirmation);
             if (data.foto instanceof File) {
                 fd.append("foto", data.foto);
             }
@@ -171,6 +174,12 @@ export const apiService = {
         reject: async (id: number) => {
             const response = await api.post(`/peminjamans/${id}/reject`);
             return response.data;
+        },
+        downloadReceipt: async (id: number) => {
+            const response = await api.get(`/peminjamans/${id}/download`, {
+                responseType: 'blob'
+            });
+            return response.data;
         }
     },
 
@@ -228,6 +237,7 @@ export const apiService = {
             if (data.kode_peminjaman) fd.append("kode_peminjaman", data.kode_peminjaman);
             fd.append("kondisi_kembali", data.kondisi_kembali);
             if (data.catatan) fd.append("catatan", data.catatan);
+            if (data.metode) fd.append("metode", data.metode);
             if (data.foto instanceof File) {
                 fd.append("foto", data.foto);
             }

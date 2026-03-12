@@ -17,20 +17,31 @@ import { toast } from "sonner"
 export default function ProfilePage() {
     const { user, refreshUser } = useAuth()
     const [isLoading, setIsLoading] = React.useState(false)
-    const [formData, setFormData] = React.useState({ name: "", email: "", no_hp: "", bio_singkat_ajasih: "", })
+    const [formData, setFormData] = React.useState({ 
+        name: "", 
+        email: "", 
+        no_hp: "", 
+        bio_singkat_ajasih: "",
+        current_password: "",
+        password: "",
+        password_confirmation: ""
+    })
     const [foto, setFoto] = React.useState<File | null>(null)
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
     const fileInputRef = React.useRef<HTMLInputElement>(null)
 
-    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000"
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL
 
     React.useEffect(() => {
         if (user) {
-            setFormData({
+            setFormData({   
                 name: user.name || "",
                 email: user.email || "",
                 no_hp: user.no_hp || "",
                 bio_singkat_ajasih: user.bio_singkat_ajasih || "",
+                current_password: "",
+                password: "",
+                password_confirmation: ""
             })
             if (user.foto) {
                 const photoUrl = user.foto.startsWith('http') ? user.foto : `${BACKEND_URL}/storage/${user.foto}`
@@ -43,7 +54,10 @@ export default function ProfilePage() {
         const { id, value } = e.target
         setFormData(prev => ({
             ...prev,
-            [id === 'namaLengkap' ? 'name' : id === 'phone' ? 'no_hp' : id === 'bio' ? 'bio_singkat_ajasih' : id]: value
+            [id === 'namaLengkap' ? 'name' : 
+             id === 'phone' ? 'no_hp' : 
+             id === 'bio' ? 'bio_singkat_ajasih' : 
+             id]: value
         }))
     }
 
@@ -64,6 +78,12 @@ export default function ProfilePage() {
                 foto: foto
             })
             toast.success("Profil berhasil diperbarui")
+            setFormData(prev => ({
+                ...prev,
+                current_password: "",
+                password: "",
+                password_confirmation: ""
+            }))
             await refreshUser()
         } catch (error: any) {
             console.error(error)
@@ -238,6 +258,47 @@ export default function ProfilePage() {
                                 onChange={handleInputChange}
                                 className="h-12 glass border-white/10 focus-visible:ring-primary/30 rounded-xl px-4"
                             />
+                        </div>
+
+                        <Separator className="bg-white/5 my-8" />
+                        
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-bold text-primary uppercase tracking-wider ml-1">Ubah Password</h3>
+                            <div className="grid gap-6 md:grid-cols-2">
+                                <div className="space-y-2.5 md:col-span-2">
+                                    <Label htmlFor="current_password" style={{ color: "rgba(203, 213, 225, 1)" }} className="font-medium ml-1">Password Saat Ini</Label>
+                                    <Input
+                                        id="current_password"
+                                        type="password"
+                                        value={formData.current_password}
+                                        onChange={handleInputChange}
+                                        placeholder="Masukkan password lama untuk verifikasi"
+                                        className="h-12 glass border-white/10 focus-visible:ring-primary/30 rounded-xl px-4"
+                                    />
+                                </div>
+                                <div className="space-y-2.5">
+                                    <Label htmlFor="password" style={{ color: "rgba(203, 213, 225, 1)" }} className="font-medium ml-1">Password Baru</Label>
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        value={formData.password}
+                                        onChange={handleInputChange}
+                                        placeholder="Min. 8 karakter"
+                                        className="h-12 glass border-white/10 focus-visible:ring-primary/30 rounded-xl px-4"
+                                    />
+                                </div>
+                                <div className="space-y-2.5">
+                                    <Label htmlFor="password_confirmation" style={{ color: "rgba(203, 213, 225, 1)" }} className="font-medium ml-1">Konfirmasi Password Baru</Label>
+                                    <Input
+                                        id="password_confirmation"
+                                        type="password"
+                                        value={formData.password_confirmation}
+                                        onChange={handleInputChange}
+                                        placeholder="Ulangi password baru"
+                                        className="h-12 glass border-white/10 focus-visible:ring-primary/30 rounded-xl px-4"
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         <div className="flex items-center gap-4 justify-end pt-4">

@@ -207,7 +207,7 @@ export default function PengembalianPage() {
                 toast.error("Pilih data peminjaman")
                 return
             }
-            createMutation.mutate(formData)
+            createMutation.mutate({ ...formData, metode: "manual" })
         }
     }
 
@@ -219,7 +219,8 @@ export default function PengembalianPage() {
                 peminjaman_id: found.id,
                 kode_peminjaman: found.kode,
                 kondisi_kembali: "baik",
-                tanggal_kembali: new Date().toISOString()
+                tanggal_kembali: new Date().toISOString(),
+                metode: "scan"
             })
             setIsScannerOpen(false)
         } else {

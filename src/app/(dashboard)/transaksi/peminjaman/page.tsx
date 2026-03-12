@@ -39,6 +39,8 @@ export default function PeminjamanPage() {
     const [isOpenDelete, setIsOpenDelete] = React.useState(false)
     const [isOpenReceipt, setIsOpenReceipt] = React.useState(false)
     const [selectedTrx, setSelectedTrx] = React.useState<Peminjaman | null>(null)
+    const [approvingId, setApprovingId] = React.useState<number | null>(null)
+    const [isDownloading, setIsDownloading] = React.useState(false)
     const [formData, setFormData] = React.useState({
         peminjam_id: "",
         alat_id: "",
@@ -107,7 +109,10 @@ export default function PeminjamanPage() {
     })
 
     const approveMutation = useMutation({
-        mutationFn: apiService.peminjaman.approve,
+        mutationFn: (id: number) => apiService.peminjaman.approve(id),
+        onMutate: (id) => {
+            setApprovingId(id)
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["peminjaman"] })
             queryClient.invalidateQueries({ queryKey: ["alat"] })
@@ -115,6 +120,9 @@ export default function PeminjamanPage() {
         },
         onError: (error: any) => {
             toast.error(error.response?.data?.message || "Gagal menyetujui peminjaman")
+        },
+        onSettled: () => {
+            setApprovingId(null)
         }
     })
 
@@ -181,8 +189,27 @@ export default function PeminjamanPage() {
         },
     ]
 
-    const handlePrint = () => {
-        window.print()
+    const handleDownload = async () => {
+        if (!selectedTrx) return
+        
+        try {
+            setIsDownloading(true)
+            const blob = await apiService.peminjaman.downloadReceipt(selectedTrx.id)
+            const url = window.URL.createObjectURL(new Blob([blob]))
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', `Resi-Peminjaman-${selectedTrx.kode}.pdf`)
+            document.body.appendChild(link)
+            link.click()
+            link.parentNode?.removeChild(link)
+            window.URL.revokeObjectURL(url)
+            toast.success("File berhasil didownload")
+        } catch (error) {
+            console.error("Download error:", error)
+            toast.error("Gagal mendownload bukti peminjaman")
+        } finally {
+            setIsDownloading(false)
+        }
     }
 
     return (
@@ -221,16 +248,16 @@ export default function PeminjamanPage() {
                     <div className="flex items-center gap-3">
                         {hasPermission('peminjaman.approve') && (
                             <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
-                                <span className="text-[10px] font-medium uppercase tracking-wider opacity-50">Approve</span>
+                                <span className="text-[10px] font-medium uppercase tracking-wider opacity-50">Setujui</span>
                                 <Switch
                                     checked={item.status !== 'Pending'}
-                                    disabled={item.status !== 'Pending' || approveMutation.isPending}
+                                    disabled={item.status !== 'Pending' || approvingId === item.id}
                                     onCheckedChange={(checked) => {
                                         if (checked) approveMutation.mutate(item.id)
                                     }}
                                     size="sm"
                                 />
-                                {approveMutation.isPending && (
+                                {approvingId === item.id && (
                                     <Loader2 className="h-3 w-3 animate-spin text-primary" />
                                 )}
                             </div>
@@ -438,8 +465,9 @@ export default function PeminjamanPage() {
                 isOpen={isOpenReceipt}
                 onClose={() => setIsOpenReceipt(false)}
                 title="Bukti Peminjaman"
-                saveLabel="Cetak Bukti"
-                onSave={handlePrint}
+                saveLabel={isDownloading ? "Downloading..." : "Download Bukti"}
+                onSave={handleDownload}
+                loading={isDownloading}
             >
                 <div id="receipt-content" className="space-y-6 p-4 bg-white dark:bg-slate-900 rounded-xl border border-border shadow-sm">
                     <div className="flex justify-between items-start border-b border-border pb-4">

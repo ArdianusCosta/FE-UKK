@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MobileSidebar } from "@/components/sidebar"
 import { ChatSheet } from "@/components/chat-sheet"
+import { NotificationDropdown } from "@/components/notification-dropdown"
 import { useAuth } from "@/contexts/auth-context"
 import { useQuery } from "@tanstack/react-query"
 import { apiService } from "../../services/api.service"
@@ -18,7 +19,7 @@ import { User as UserType } from "@/types/chat.types"
 
 export function Navbar() {
     const { user } = useAuth()
-    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000"
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL
     const initials = user?.name
         ? user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
         : "U"
@@ -26,7 +27,7 @@ export function Navbar() {
     const { data: contacts = [] } = useQuery<UserType[]>({
         queryKey: ["users-chat"],
         queryFn: () => apiService.chat.getChat(),
-        refetchInterval: 30000, // Refetch every 30s to keep badge updated
+        refetchInterval: 30000,
     })
 
     const totalUnread = Array.isArray(contacts)
@@ -63,10 +64,7 @@ export function Navbar() {
                         </Button>
                     </ChatSheet>
 
-                    <Button variant="ghost" size="icon" className="glass h-9 w-9 text-muted-foreground relative">
-                        <Bell className="h-5 w-5" />
-                        <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-background"></span>
-                    </Button>
+                    <NotificationDropdown />
 
                     <ThemeToggle />
 
