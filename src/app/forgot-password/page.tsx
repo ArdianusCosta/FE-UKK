@@ -6,19 +6,31 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Mail, ArrowLeft } from "lucide-react"
+import { Mail, ArrowLeft, Loader2 } from "lucide-react"
 import { InteractiveParticles } from "@/components/interactive-particles"
 import Link from "next/link"
+import { toast } from "sonner"
+import { apiService } from "../../../services/api.service"
 
 export default function ForgotPasswordPage() {
     const router = useRouter()
     const [email, setEmail] = React.useState("")
+    const [isLoading, setIsLoading] = React.useState(false)
 
-    const handleResetPassword = (e: React.FormEvent) => {
+    const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault()
-        // UI only logic
-        console.log("Reset password for:", email)
-        // You might want to show a success message or redirect
+        setIsLoading(true)
+        try {
+            await apiService.auth.forgotPassword(email)
+            toast.success("Kode reset password telah dikirim ke email Anda")
+            setTimeout(() => {
+                router.push(`/reset-password?email=${encodeURIComponent(email)}`)
+            }, 2000)
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "Gagal mengirim permintaan reset password")
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     return (
@@ -61,7 +73,12 @@ export default function ForgotPasswordPage() {
                         </div>
                     </CardContent>
                     <CardFooter className="flex flex-col gap-4 pt-2">
-                        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/20 h-11 transition-all">
+                        <Button 
+                            type="submit" 
+                            disabled={isLoading}
+                            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/20 h-11 transition-all"
+                        >
+                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Kirim Instruksi Reset
                         </Button>
 

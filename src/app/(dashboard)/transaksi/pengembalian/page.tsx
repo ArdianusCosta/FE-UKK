@@ -549,6 +549,30 @@ export default function PengembalianPage() {
                                                     >
                                                         <Eye className="h-4 w-4" />
                                                     </Button>
+
+                                                    {isAdmin && (
+                                                        <>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-8 w-8 text-amber-500/70 hover:text-amber-500 hover:bg-amber-500/10 transition-colors"
+                                                                onClick={() => handleEdit(p)}
+                                                            >
+                                                                <Edit2 className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-8 w-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                                                                onClick={() => {
+                                                                    setReturnToDelete(p)
+                                                                    setIsDeleteModalOpen(true)
+                                                                }}
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </TableCell>
                                         </TableRow>
