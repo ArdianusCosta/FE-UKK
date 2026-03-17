@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Search, RotateCcw, FileText, Download, Calendar as CalendarIcon, Filter } from "lucide-react"
+import { toast } from "sonner"
 import axios from "axios"
 
 interface FilterSectionProps {
@@ -36,6 +37,11 @@ export default function FilterSection({ onFilter, onExport }: FilterSectionProps
         }
         fetchUsers()
     }, [])
+
+    const isDateRangeValid = () => {
+        if (!filters.start || !filters.end) return true
+        return new Date(filters.start) <= new Date(filters.end)
+    }
 
     const handleReset = () => {
         const resetFilters = { start: "", end: "", status: "all", user_id: "all" }
@@ -114,7 +120,14 @@ export default function FilterSection({ onFilter, onExport }: FilterSectionProps
                 <div className="px-6 py-4 bg-white/[0.02] border-t border-white/5 flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <Button
-                            onClick={() => onFilter(filters)}
+                            onClick={() => {
+                                if (!isDateRangeValid()) {
+                                    toast.error("Rentang tanggal tidak valid. Pastikan rentang awal tidak lebih besar dari rentang akhir.")
+                                    return
+                                }
+
+                                onFilter(filters)
+                            }}
                             className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 h-9 px-6 transition-all active:scale-95"
                         >
                             <Search className="w-4 h-4 mr-2" />

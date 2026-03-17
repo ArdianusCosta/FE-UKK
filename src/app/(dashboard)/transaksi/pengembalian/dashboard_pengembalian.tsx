@@ -48,10 +48,10 @@ export function DashboardPengembalianOverview() {
 
     return (
         <div className="space-y-4 mb-8">
-            <div className="flex flex-col gap-1">
+            {/* <div className="flex flex-col gap-1">
                 <h2 className="text-xl font-bold tracking-tight">Ringkasan Statistik</h2>
                 <p className="text-sm text-muted-foreground">Gambaran umum seluruh aktivitas peminjaman dan pengembalian.</p>
-            </div>
+            </div> */}
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <StatCard

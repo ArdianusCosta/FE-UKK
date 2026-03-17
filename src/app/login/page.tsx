@@ -153,10 +153,6 @@ export default function LoginPage() {
                             </svg>
                             Google
                         </Button>
-
-                        <p className="text-center text-sm text-muted-foreground mt-2">
-                            Belum punya akun? <a href="#" className="text-primary hover:underline font-medium">Hubungi Admin</a>
-                        </p>
                     </CardFooter>
                 </form>
             </Card>

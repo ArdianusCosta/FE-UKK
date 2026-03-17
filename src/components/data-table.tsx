@@ -26,6 +26,8 @@ interface DataTableProps<T> {
 
 export function DataTable<T>({ title, data, columns, onAdd, onEdit, onDelete, searchPlaceholder = "Cari data...", showHeading = true, loading = false, renderActions,
 }: DataTableProps<T>) {
+    const displayTitle = title?.trim() ? title : "Data Alat"
+
     const [searchQuery, setSearchQuery] = React.useState("")
     const [currentPage, setCurrentPage] = React.useState(1)
     const itemsPerPage = 10
@@ -48,8 +50,8 @@ export function DataTable<T>({ title, data, columns, onAdd, onEdit, onDelete, se
             {showHeading && (
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-2xl font-bold tracking-tight dark:text-white">{title}</h2>
-                        <p className="text-sm text-muted-foreground">Kelola {title.toLowerCase()}.</p>
+                        <h2 className="text-2xl font-bold tracking-tight dark:text-white">{displayTitle}</h2>
+                        <p className="text-sm text-muted-foreground">Kelola {displayTitle.toLowerCase()}.</p>
                     </div>
                     {onAdd && (
                         <Button onClick={onAdd} className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 w-full sm:w-auto">

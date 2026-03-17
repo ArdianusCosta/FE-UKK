@@ -11,11 +11,12 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
-import { ImageIcon, Plus, Edit2, Trash2 } from "lucide-react"
+import { ImageIcon, Plus, Edit2, Trash2, Eye } from "lucide-react"
 import { apiService } from "../../../../../services/api.service"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000"
 
@@ -23,6 +24,7 @@ const STATUS_OPTIONS = [
     { value: "tersedia", label: "Tersedia", color: "bg-green-500" },
     { value: "dipinjam", label: "Dipinjam", color: "bg-blue-500" },
     { value: "maintenance", label: "Perbaikan", color: "bg-yellow-500" },
+    { value: "habis", label: "Habis", color: "bg-red-500" },
 ]
 
 export default function AlatPage() {
@@ -31,6 +33,7 @@ export default function AlatPage() {
     const [isOpenAdd, setIsOpenAdd] = React.useState(false)
     const [isOpenEdit, setIsOpenEdit] = React.useState(false)
     const [isOpenDelete, setIsOpenDelete] = React.useState(false)
+    const [isOpenDetail, setIsOpenDetail] = React.useState(false)
     const [selectedAlat, setSelectedAlat] = React.useState<any>(null)
     const [kodeAlat, setKodeAlat] = React.useState("")
     const [namaAlat, setNamaAlat] = React.useState("")
@@ -208,7 +211,7 @@ export default function AlatPage() {
                     </div>
                 ) : null}
                 <DataTable
-                    title="Daftar Alat"
+                    title=" "
                     data={alats}
                     columns={columns}
                     loading={isLoadingAlat}
@@ -230,7 +233,81 @@ export default function AlatPage() {
                         setSelectedAlat(alat)
                         setIsOpenDelete(true)
                     }) : undefined}
+                    renderActions={(alat) => (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
+                            onClick={() => {
+                                setSelectedAlat(alat)
+                                setIsOpenDetail(true)
+                            }}
+                        >
+                            <Eye className="h-4 w-4" />
+                        </Button>
+                    )}
                 />
+
+                <Dialog open={isOpenDetail} onOpenChange={setIsOpenDetail}>
+                    <DialogContent className="sm:max-w-[500px] glass border-border/50">
+                        <DialogHeader>
+                            <DialogTitle className="text-xl font-bold dark:text-white">Detail Alat</DialogTitle>
+                        </DialogHeader>
+                        {selectedAlat && (
+                            <div className="space-y-6">
+                                <div className="flex gap-4">
+                                    <div className="h-32 w-32 rounded-lg border overflow-hidden shrink-0">
+                                        {selectedAlat.foto_url ? (
+                                            <img src={selectedAlat.foto_url} alt={selectedAlat.nama_alat} className="h-full w-full object-cover" />
+                                        ) : (
+                                            <div className="h-full w-full bg-muted flex items-center justify-center">
+                                                <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="space-y-1 py-1">
+                                        <div className="text-xs font-mono text-muted-foreground">{selectedAlat.kode_alat}</div>
+                                        <h3 className="text-xl font-bold">{selectedAlat.nama_alat}</h3>
+                                        <Badge variant="secondary">{selectedAlat.nama_kategori_alat}</Badge>
+                                        <div className="mt-2">
+                                            {(() => {
+                                                const opt = STATUS_OPTIONS.find(s => s.value === selectedAlat.status)
+                                                return (
+                                                    <Badge className={opt?.color}>{opt?.label || selectedAlat.status}</Badge>
+                                                )
+                                            })()}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Distribusi Stok</h4>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <div className="p-3 rounded-xl border bg-green-500/5 border-green-500/20 text-center">
+                                            <div className="text-2xl font-bold text-green-500">{selectedAlat.stok_tersedia ?? 0}</div>
+                                            <div className="text-[10px] text-muted-foreground uppercase">Tersedia</div>
+                                        </div>
+                                        <div className="p-3 rounded-xl border bg-blue-500/5 border-blue-500/20 text-center">
+                                            <div className="text-2xl font-bold text-blue-500">{selectedAlat.stok_dipinjam ?? 0}</div>
+                                            <div className="text-[10px] text-muted-foreground uppercase">Dipinjam</div>
+                                        </div>
+                                        <div className="p-3 rounded-xl border bg-yellow-500/5 border-yellow-500/20 text-center">
+                                            <div className="text-2xl font-bold text-yellow-500">{selectedAlat.stok_maintenance ?? 0}</div>
+                                            <div className="text-[10px] text-muted-foreground uppercase">Perbaikan</div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1.5 pt-1">
+                                        <div className="text-[10px] text-muted-foreground text-center italic">Total Alat: {selectedAlat.stok_total ?? 0} Unit</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end pt-2">
+                                    <Button variant="outline" onClick={() => setIsOpenDetail(false)} className="glass">Tutup</Button>
+                                </div>
+                            </div>
+                        )}
+                    </DialogContent>
+                </Dialog>
 
                 <FormModal
                     isOpen={isOpenAdd}

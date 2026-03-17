@@ -46,7 +46,8 @@ export default function PeminjamanPage() {
         alat_id: "",
         tanggal_pinjam: new Date().toISOString().split('T')[0],
         tanggal_kembali: "",
-        status: "Pending"
+        status: "Pending",
+        ingin_di_pinjam: 1,
     })
     const { data: peminjamanResponse, isLoading } = useQuery({
         queryKey: ["peminjaman"],
@@ -64,6 +65,7 @@ export default function PeminjamanPage() {
     })
 
     const alats = alatResponse?.data || []
+    const selectedAlat = alats.find((a: any) => a.id.toString() === formData.alat_id)
     const peminjamans: Peminjaman[] = peminjamanResponse?.data || []
 
     const createMutation = useMutation({
@@ -225,7 +227,8 @@ export default function PeminjamanPage() {
                         alat_id: "",
                         tanggal_pinjam: new Date().toISOString().split('T')[0],
                         tanggal_kembali: "",
-                        status: "Pending"
+                        status: "Pending",
+                        ingin_di_pinjam: 1
                     })
                     setIsOpenAdd(true)
                 }) : undefined}
@@ -275,7 +278,8 @@ export default function PeminjamanPage() {
                                                 alat_id: item.alat_id.toString(),
                                                 tanggal_pinjam: item.tanggal_pinjam,
                                                 tanggal_kembali: item.tanggal_kembali || "",
-                                                status: item.status
+                                                status: item.status,
+                                                ingin_di_pinjam: item.ingin_di_pinjam ?? 1
                                             })
                                             setIsOpenEdit(true)
                                         }}
@@ -312,12 +316,28 @@ export default function PeminjamanPage() {
                         toast.error("Mohon lengkapi data")
                         return
                     }
+
+                    const selectedAlat = alats.find((a: any) => a.id.toString() === formData.alat_id)
+                    const maxQty = selectedAlat?.stok ?? 0
+                    const qty = Number(formData.ingin_di_pinjam) || 1
+
+                    if (qty < 1) {
+                        toast.error("Jumlah peminjaman minimal 1")
+                        return
+                    }
+
+                    if (qty > maxQty) {
+                        toast.error(`Stok tidak mencukupi. Maksimal ${maxQty} unit.`)
+                        return
+                    }
+
                     createMutation.mutate({
                         peminjam_id: Number(formData.peminjam_id),
                         alat_id: Number(formData.alat_id),
                         tanggal_pinjam: formData.tanggal_pinjam,
                         tanggal_kembali: formData.tanggal_kembali || null,
-                        status: formData.status
+                        status: formData.status,
+                        ingin_di_pinjam: qty,
                     })
                 }}
                 loading={createMutation.isPending}
@@ -353,7 +373,7 @@ export default function PeminjamanPage() {
                         <Label>Alat</Label>
                         <Select
                             value={formData.alat_id}
-                            onValueChange={(val) => setFormData(prev => ({ ...prev, alat_id: val }))}
+                            onValueChange={(val) => setFormData(prev => ({ ...prev, alat_id: val, ingin_di_pinjam: 1 }))}
                         >
                             <SelectTrigger className="glass w-full">
                                 <SelectValue placeholder="Pilih Alat" />
@@ -371,6 +391,20 @@ export default function PeminjamanPage() {
                             </SelectContent>
                         </Select>
                     </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="quantity">Jumlah Pinjam</Label>
+                        <Input
+                            id="quantity"
+                            type="number"
+                            className="glass"
+                            min={1}
+                            value={formData.ingin_di_pinjam}
+                            onChange={(e) => setFormData(prev => ({ ...prev, ingin_di_pinjam: Number(e.target.value) }))}
+                            max={alats.find((a: any) => a.id.toString() === formData.alat_id)?.stok ?? undefined}
+                        />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="date">Tanggal Pinjam</Label>
@@ -419,16 +453,30 @@ export default function PeminjamanPage() {
                 onClose={() => setIsOpenEdit(false)}
                 title={`Edit Peminjaman - ${selectedTrx?.kode}`}
                 onSave={() => {
-                    if (selectedTrx) {
-                        updateMutation.mutate({
-                            id: selectedTrx.id,
-                            data: {
-                                tanggal_pinjam: formData.tanggal_pinjam,
-                                tanggal_kembali: formData.tanggal_kembali || null,
-                                status: formData.status
-                            }
-                        })
+                    if (!selectedTrx) return
+
+                    const maxQty = (selectedAlat?.stok ?? 0) + (selectedTrx?.ingin_di_pinjam ?? 0)
+                    const qty = Number(formData.ingin_di_pinjam) || 1
+
+                    if (qty < 1) {
+                        toast.error("Jumlah peminjaman minimal 1")
+                        return
                     }
+
+                    if (qty > maxQty) {
+                        toast.error(`Stok tidak mencukupi. Maksimal ${maxQty} unit.`)
+                        return
+                    }
+
+                    updateMutation.mutate({
+                        id: selectedTrx.id,
+                        data: {
+                            tanggal_pinjam: formData.tanggal_pinjam,
+                            tanggal_kembali: formData.tanggal_kembali || null,
+                            status: formData.status,
+                            ingin_di_pinjam: qty
+                        }
+                    })
                 }}
                 loading={updateMutation.isPending}
             >
@@ -466,6 +514,23 @@ export default function PeminjamanPage() {
                             />
                         </div>
                     </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="edit-quantity">Jumlah Pinjam</Label>
+                        <Input
+                            id="edit-quantity"
+                            type="number"
+                            className="glass"
+                            min={1}
+                            max={(selectedAlat?.stok ?? 0) + (selectedTrx?.ingin_di_pinjam ?? 0)}
+                            value={formData.ingin_di_pinjam}
+                            onChange={(e) => setFormData(prev => ({ ...prev, ingin_di_pinjam: Number(e.target.value) }))}
+                        />
+                        {selectedAlat && (
+                            <p className="text-xs text-muted-foreground">Stok tersedia: {selectedAlat.stok}</p>
+                        )}
+                    </div>
+
                     {!isBorrower && (
                         <div className="space-y-2">
                             <Label>Status</Label>

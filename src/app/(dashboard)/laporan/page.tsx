@@ -111,7 +111,7 @@ export default function LaporanPage() {
                         <Card className="lg:col-span-7 border border-white/5 shadow-xl bg-card/30 backdrop-blur-xl overflow-hidden group">
                             <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground/80">Trend Peminjaman Bulanan</CardTitle>
+                                <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground/80">Peminjaman Bulanan</CardTitle>
                             </CardHeader>
                             <CardContent className="h-[350px] pt-4">
                                 <ResponsiveContainer width="100%" height="100%">

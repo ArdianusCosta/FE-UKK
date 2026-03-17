@@ -6,6 +6,7 @@ export interface Peminjaman {
     tanggal_pinjam: string;
     tanggal_kembali: string | null;
     status: string;
+    ingin_di_pinjam?: number;
     peminjam: { id: number; name: string };
     alat: { id: number; nama: string; foto: string | null };
 }
